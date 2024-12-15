@@ -19,7 +19,11 @@ package minicp.engine.constraints;
 import minicp.engine.core.AbstractConstraint;
 import minicp.engine.core.IntVar;
 import minicp.state.StateInt;
+import minicp.util.exception.InconsistencyException;
 import minicp.util.exception.NotImplementedException;
+
+import java.util.ArrayList;
+
 import static minicp.cp.Factory.allDifferent;
 
 /**
@@ -58,12 +62,50 @@ public class Circuit extends AbstractConstraint {
         getSolver().post(allDifferent(x));
         // TODO
         // Hint: use x[i].whenFixed(...) to call the fix
-         throw new NotImplementedException("Circuit");
+        for (int i = 0; i < x.length; i ++) {
+            x[i].removeAbove(x.length-1);
+            x[i].removeBelow(0);
+            x[i].remove(i);
+            int finalI = i;
+            x[i].whenFixed(() -> fix(finalI));
+        }
+
+        int a = 0;
+        for (IntVar iv : x){
+            if (iv.isFixed()) a++;
+        }
+        if (a==x.length){
+            ArrayList<Integer> arr = new ArrayList<Integer>();
+            int v = 0;
+            for (IntVar iv : x){
+                if (arr.contains(x[v].min())){
+                    throw new InconsistencyException();
+                } else {
+                    arr.add(x[v].min());
+                }
+                v = x[v].min();
+            }
+        }
     }
 
 
     protected void fix(int i) {
         // TODO
-         throw new NotImplementedException("Circuit");
+        for (int l = 0 ; l < x.length ; l++) {
+            dest[l].setValue(l);
+            orig[l].setValue(l);
+            lengthToDest[l].setValue(0);
+        }
+        for (int l = 0 ; l < x.length ; l++){
+            if (x[l].isFixed()){
+                int j = x[l].min();
+                dest[orig[l].value()].setValue(dest[j].value());
+                orig[dest[j].value()].setValue(orig[l].value());
+                lengthToDest[orig[l].value()].setValue( lengthToDest[orig[l].value()].value() + lengthToDest[j].value()+1);
+                if (lengthToDest[orig[l].value()].value() < x.length-1){
+                    x[dest[j].value()].remove(orig[l].value());
+                }
+            }
+        }
     }
 }

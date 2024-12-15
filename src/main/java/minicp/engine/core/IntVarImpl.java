@@ -177,7 +177,8 @@ public class IntVarImpl implements IntVar {
 
     @Override
     public int fillArray(int[] dest) {
-         throw new NotImplementedException();
+        int s = domain.fillArray(dest);
+        return s;
     }
 
     @Override
