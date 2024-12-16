@@ -23,7 +23,6 @@ public class Base_Problem {
                 cp.post(Factory.notEqual(H[i], H[j]));
             }
         }
-
         DFSearch search = Factory.makeDfs(cp, () -> {
             int idx = -1; // index of the first variable that is not fixed
             boolean axe = true;
