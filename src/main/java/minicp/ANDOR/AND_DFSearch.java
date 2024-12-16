@@ -110,7 +110,7 @@ public class AND_DFSearch {
         currNodeIdId = 0;
         sm.withNewState(() -> {
             try {
-                dfs(branch,statistics, limit , -1, -1,0);
+                dfs(branch,statistics, limit , -1, -1);
                 statistics.setCompleted();
             } catch (StopSearchException ignored) {
             } catch (StackOverflowError e) {
@@ -144,7 +144,7 @@ public class AND_DFSearch {
         }
     }
 
-    private void dfs(Branch branch, SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position,int AND) {
+    private void dfs(Branch branch, SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position) {
         if (limit.test(statistics))
             throw new StopSearchException();
         final int nodeId = currNodeIdId++;
@@ -157,7 +157,7 @@ public class AND_DFSearch {
                 sm.withNewState(() -> {
                     try {
                         statistics.incrNodes();
-                        dfs(b,statistics, limit, nodeId, p,AND + 1);
+                        dfs(b,statistics, limit, nodeId, p);
                     } catch (InconsistencyException e) {
                         currNodeIdId++;
                         statistics.incrFailures();
@@ -166,22 +166,18 @@ public class AND_DFSearch {
                 });
                 pos += 1;
             }
-            if (AND == 0 && false){
-                statistics.incrSolutions();
-                notifySolution(parentId,nodeId, position);
-            }
         } else {
             B_OR or = (B_OR) branch;
             Procedure[] branches = Branching(this.cp, or.variables);
             notifyBranch(parentId,nodeId, position, or.variables.length);
             int pos = 0;
             if (branches.length == 0) {
-                if (branch.getBranches() == null && AND == 0){
+                if (branch.getBranches() == null){
                     statistics.incrSolutions();
                     notifySolution(parentId,nodeId, position);
                 } else {
                     final int p = pos;
-                    dfs(branch.getBranches()[0], statistics, limit, nodeId, p,Math.max(AND-1,0));
+                    dfs(branch.getBranches()[0], statistics, limit, nodeId, p);
                 }
             } else {
                 for (Procedure b : branches) {
@@ -190,7 +186,7 @@ public class AND_DFSearch {
                         try {
                             statistics.incrNodes();
                             b.call();
-                            dfs(branch,statistics, limit, nodeId, p,Math.max(AND-1,0));
+                            dfs(branch,statistics, limit, nodeId, p);
                         } catch (InconsistencyException e) {
                             currNodeIdId++;
                             statistics.incrFailures();

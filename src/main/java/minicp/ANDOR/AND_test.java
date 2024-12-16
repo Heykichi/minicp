@@ -48,6 +48,9 @@ public class AND_test {
         B_OR B_OR1 = new B_OR(null,new IntVar[]{V[0],V[1]});
         B_OR B_OR2 = new B_OR(null,new IntVar[]{H[0],H[1]});
 
+        B_OR B_OR3 = new B_OR(new B_OR[]{B_OR1},new IntVar[]{H[0],H[1]});
+
+
         B_AND b_and = new B_AND(new B_OR[]{B_OR1,B_OR2});
 
         SearchStatistics stats = search.solve(b_and,statistics -> statistics.numberOfSolutions() == 1000);
