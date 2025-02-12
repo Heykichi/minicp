@@ -58,6 +58,7 @@ public class Base_Problem {
 
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);
+        System.out.println(V[0].contains(0));
 
     }
 }
