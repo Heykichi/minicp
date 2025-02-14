@@ -19,12 +19,15 @@ public class AND_test {
         int index = 3;
         IntVar[] V = Factory.makeIntVarArray(cp, index, index);
         IntVar[] H = Factory.makeIntVarArray(cp, index, index);
+        IntVar[] L = Factory.makeIntVarArray(cp, index, index);
 
         cp.post(Factory.equal(V[0], H[0]));
+        cp.post(Factory.equal(L[2], H[2]));
         for (int i = 0; i < index; i++){
             for (int j = i + 1; j < index; j++) {
                 cp.post(Factory.notEqual(V[i], V[j]));
                 cp.post(Factory.notEqual(H[i], H[j]));
+                cp.post(Factory.notEqual(L[i], L[j]));
             }
         }
 
@@ -33,11 +36,15 @@ public class AND_test {
 
         search.onSolution(() ->
                 //System.out.println("solution:"  + Arrays.toString(V))
-                System.out.println("solution:" + Arrays.toString(H) + " - " + Arrays.toString(V))
+                System.out.println("solution:\n V: " + Arrays.toString(V) + "\n H:- " + Arrays.toString(H) + "\n L:- " + Arrays.toString(L))
         );
 
+        B_OR B_OR0 = new B_OR(null,new IntVar[]{L[0],H[1]});
         B_OR B_OR1 = new B_OR(null,new IntVar[]{V[1],V[2]});
-        B_OR B_OR2 = new B_OR(null,new IntVar[]{H[1],H[2]});
+
+        B_AND b_and2 = new B_AND(new B_OR[]{B_OR1,B_OR0});
+
+        B_OR B_OR2 = new B_OR(new Branch[]{b_and2},new IntVar[]{H[2]});
 
         B_AND b_and = new B_AND(new B_OR[]{B_OR1,B_OR2});
 

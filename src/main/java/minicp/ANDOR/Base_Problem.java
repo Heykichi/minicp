@@ -13,16 +13,21 @@ public class Base_Problem {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeSolver(false);
-        IntVar[] V = Factory.makeIntVarArray(cp, 4, 4);
-        IntVar[] H = Factory.makeIntVarArray(cp, 4, 4);
+        int index = 3;
+        IntVar[] V = Factory.makeIntVarArray(cp, index, index);
+        IntVar[] H = Factory.makeIntVarArray(cp, index, index);
+        IntVar[] L = Factory.makeIntVarArray(cp, index, index);
 
-        cp.post(Factory.equal(V[2], H[2]));
-        for (int i = 0; i < 4; i++){
-            for (int j = i + 1; j < 4; j++) {
+        cp.post(Factory.equal(V[0], H[0]));
+        cp.post(Factory.equal(L[2], H[2]));
+        for (int i = 0; i < index; i++){
+            for (int j = i + 1; j < index; j++) {
                 cp.post(Factory.notEqual(V[i], V[j]));
                 cp.post(Factory.notEqual(H[i], H[j]));
+                cp.post(Factory.notEqual(L[i], L[j]));
             }
         }
+
         DFSearch search = Factory.makeDfs(cp, () -> {
             int idx = -1; // index of the first variable that is not fixed
             boolean axe = true;
@@ -50,7 +55,8 @@ public class Base_Problem {
         });
 
         search.onSolution(() ->
-                System.out.println("solution:" + Arrays.toString(H) + " - " + Arrays.toString(V))
+                //System.out.println("solution:"  + Arrays.toString(V))
+                System.out.println("solution:\n V: " + Arrays.toString(V) + "\n H:- " + Arrays.toString(H) + "\n L:- " + Arrays.toString(L))
         );
         SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 1000);
 
