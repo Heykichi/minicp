@@ -16,15 +16,15 @@ public class Base_Problem {
         int index = 3;
         IntVar[] V = Factory.makeIntVarArray(cp, index, index);
         IntVar[] H = Factory.makeIntVarArray(cp, index, index);
-        IntVar[] L = Factory.makeIntVarArray(cp, index, index);
+        //IntVar[] L = Factory.makeIntVarArray(cp, index, index);
 
         cp.post(Factory.equal(V[0], H[0]));
-        cp.post(Factory.equal(L[2], H[2]));
+        //cp.post(Factory.equal(L[2], H[2]));
         for (int i = 0; i < index; i++){
             for (int j = i + 1; j < index; j++) {
                 cp.post(Factory.notEqual(V[i], V[j]));
                 cp.post(Factory.notEqual(H[i], H[j]));
-                cp.post(Factory.notEqual(L[i], L[j]));
+                //cp.post(Factory.notEqual(L[i], L[j]));
             }
         }
 
@@ -56,7 +56,7 @@ public class Base_Problem {
 
         search.onSolution(() ->
                 //System.out.println("solution:"  + Arrays.toString(V))
-                System.out.println("solution:\n V: " + Arrays.toString(V) + "\n H:- " + Arrays.toString(H) + "\n L:- " + Arrays.toString(L))
+                System.out.println("solution:\n V: " + Arrays.toString(V) + "\n H:- " + Arrays.toString(H) )//+ "\n L:- " + Arrays.toString(L))
         );
         SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 1000);
 
@@ -64,7 +64,6 @@ public class Base_Problem {
 
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);
-        System.out.println(V[0].contains(0));
 
     }
 }

@@ -4,7 +4,7 @@ import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.util.Procedure;
-
+import java.util.HashMap;
 import java.util.Arrays;
 
 public class Base_AND_Problem {
@@ -49,5 +49,6 @@ public class Base_AND_Problem {
         branchSolver(cp,V);
 
         System.out.println("solution:" + Arrays.toString(H) + " - " + Arrays.toString(V));
+
     }
 }

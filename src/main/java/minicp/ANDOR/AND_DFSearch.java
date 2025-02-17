@@ -25,9 +25,8 @@ import minicp.util.exception.InconsistencyException;
 import minicp.util.exception.NotImplementedException;
 import tinycsp.Variable;
 
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -110,7 +109,7 @@ public class AND_DFSearch {
         currNodeIdId = 0;
         sm.withNewState(() -> {
             try {
-                dfs(branch,statistics, limit , -1, -1);
+                dfs(branch,statistics, limit , -1, -1,false);
                 statistics.setCompleted();
             } catch (StopSearchException ignored) {
             } catch (StackOverflowError e) {
@@ -144,20 +143,21 @@ public class AND_DFSearch {
         }
     }
 
-    private void dfs(Branch branch, SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position) {
+    private List<HashMap<Integer, Integer>> dfs(Branch branch, SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position, boolean A) {
         if (limit.test(statistics))
             throw new StopSearchException();
         final int nodeId = currNodeIdId++;
-
         if (Objects.equals(branch.getType(), "and")) {
             notifyBranch(parentId,nodeId, position, branch.branches.length);
             int pos = 0;
+            List<List<HashMap<Integer, Integer>>> liste = new ArrayList<>();
             for (Branch b : branch.branches) {
                 final int p = pos;
                 sm.withNewState(() -> {
                     try {
                         statistics.incrNodes();
-                        dfs(b,statistics, limit, nodeId, p);
+                        List<HashMap<Integer, Integer>> L = dfs(b,statistics, limit, nodeId, p, true);
+                        liste.add(L);
                     } catch (InconsistencyException e) {
                         currNodeIdId++;
                         statistics.incrFailures();
@@ -166,6 +166,23 @@ public class AND_DFSearch {
                 });
                 pos += 1;
             }
+
+            if (A){
+                //fusion des liste
+                List<HashMap<Integer, Integer>> End = new ArrayList<>();
+                return End;
+            } else {
+
+                int size = 1;
+                for (List<HashMap<Integer, Integer>> l : liste) {
+                    size *= l.size();
+                }
+                System.out.println("nombre solution :" + size);
+                for (int k = 0; k < size; k++) {
+                    statistics.incrSolutions();
+                    notifySolution(parentId,nodeId, position);
+                }
+            }
         } else {
             B_OR or = (B_OR) branch;
             Procedure[] branches = Branching(this.cp, or.variables);
@@ -173,20 +190,38 @@ public class AND_DFSearch {
             int pos = 0;
             if (branches.length == 0) {
                 if (branch.getBranches() == null){
-                    statistics.incrSolutions();
-                    notifySolution(parentId,nodeId, position);
+                    if (A){
+                        List<HashMap<Integer, Integer>> Solution = new ArrayList<>();
+                        HashMap<Integer, Integer> S = new HashMap<>();
+                        S.put(123, 123);
+                        Solution.add(S);
+                        return Solution;
+                    } else {
+                        statistics.incrSolutions();
+                        notifySolution(parentId,nodeId, position);
+                    }
+
                 } else {
                     final int p = pos;
-                    dfs(branch.getBranches()[0], statistics, limit, nodeId, p);
+                    List<HashMap<Integer, Integer>> Solutions = dfs(branch.getBranches()[0], statistics, limit, nodeId, p, A);
+                    if (A){
+                        return Solutions;
+                    }
                 }
             } else {
+                List<HashMap<Integer, Integer>> liste = new ArrayList<>();
                 for (Procedure b : branches) {
                     final int p = pos;
                     sm.withNewState(() -> {
                         try {
                             statistics.incrNodes();
                             b.call();
-                            dfs(branch,statistics, limit, nodeId, p);
+                            if (A){
+                                liste.addAll(dfs(branch,statistics, limit, nodeId, p, A));
+                            } else {
+                                dfs(branch,statistics, limit, nodeId, p, A);
+                            }
+
                         } catch (InconsistencyException e) {
                             currNodeIdId++;
                             statistics.incrFailures();
@@ -195,9 +230,10 @@ public class AND_DFSearch {
                     });
                     pos += 1;
                 }
+                return liste;
             }
-
         }
+        return null;
     }
 
 
