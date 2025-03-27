@@ -11,7 +11,7 @@ import minicp.ANDOR.AND_DFSearch.*;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import static minicp.ANDOR.AND_DFSearch.Get_branches;
+
 
 public class AND_test {
     public static void main(String[] args) {

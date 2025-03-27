@@ -23,11 +23,9 @@ import minicp.state.StateManager;
 import minicp.util.Procedure;
 import minicp.util.exception.InconsistencyException;
 import minicp.util.exception.NotImplementedException;
-import tinycsp.Variable;
 
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -241,9 +239,7 @@ public class AND_DFSearch {
         return new DFSearch(cp.getStateManager(), branching);
     }
 
-    public static Branch Get_branches(String S){
-        return new AND_DFSearch.B_OR(null,null);
-    }
+
     static abstract class Branch {
         private String type;
         private Branch[] branches;
@@ -273,6 +269,37 @@ public class AND_DFSearch {
 
         public IntVar[] getVariables() {
             return variables;
+        }
+    }
+
+    static class SubTable {
+        private List<Map<String, Integer>> variables;
+        public SubTable() {
+            this.variables = new ArrayList<>();
+        }
+        public void addSolution(Map<String, Integer> variables) {
+            this.variables.add(variables);
+        }
+        public List<Map<String, Integer>> getSolutions() {
+            return variables;
+        }
+    }
+    class SlicedTable {
+        private Map<String, Integer> pattern;
+        private List<SubTable> subtables;
+
+        public SlicedTable(Map<String, Integer> pattern, int N) {
+            this.pattern = pattern;
+            this.subtables = new ArrayList<>();
+        }
+        public void addSubTable(SubTable subTable) {
+            this.subtables.add(subTable);
+        }
+        public Map<String, Integer> getPattern() {
+            return pattern;
+        }
+        public List<SubTable> getSubTables() {
+            return subtables;
         }
     }
 }
