@@ -31,9 +31,9 @@ public class IntVarImpl implements IntVar {
 
     private final Solver cp;
     private final IntDomain domain;
-    private final StateStack<Constraint> onDomain;
-    private final StateStack<Constraint> onFix;
-    private final StateStack<Constraint> onBound;
+    public final StateStack<Constraint> onDomain;
+    public final StateStack<Constraint> onFix;
+    public final StateStack<Constraint> onBound;
 
     private final DomainListener domListener = new DomainListener() {
         @Override
@@ -204,5 +204,9 @@ public class IntVarImpl implements IntVar {
     @Override
     public void removeAbove(int v) {
         domain.removeAbove(v, domListener);
+    }
+
+    public StateStack<Constraint> getSubTables() {
+        return  onDomain;
     }
 }

@@ -70,7 +70,7 @@ public final class Factory {
      * Creates a constraint programming solver
      * @param byCopy a value that should be true to specify
      *               copy-based state management
-     *               or falso for a trail-based memory management
+     *               or false for a trail-based memory management
      * @return a constraint programming solver
      */
     public static Solver makeSolver(boolean byCopy) {

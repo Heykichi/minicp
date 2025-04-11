@@ -37,7 +37,8 @@ public class AND_test {
 
         search.onSolution(() ->
                 //System.out.println("solution:"  + Arrays.toString(V))
-                System.out.println("V: " + Arrays.toString(V) + "\t H: " + Arrays.toString(H) )//+ "\n L:- " + Arrays.toString(L))
+                System.out.println("    Egypte :" + V[0] + "\n Afrique 1 :" + H[1] + " Afrique 2 :" + H[2] + "\n Asie 1 :" + V[1] + " Asie 2 :" + V[2] + "\n")
+                //System.out.println("    V: " + Arrays.toString(V) + "\t H: " + Arrays.toString(H) )//+ "\n L:- " + Arrays.toString(L))
         );
         /*
         B_OR B_OR0 = new B_OR(null,new IntVar[]{L[0],H[1]});

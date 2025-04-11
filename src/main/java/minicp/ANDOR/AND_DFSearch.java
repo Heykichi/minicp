@@ -142,14 +142,20 @@ public class AND_DFSearch {
     }
 
     private List<HashMap<Integer, Integer>> dfs(Branch branch, SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position, boolean A) {
+
         if (limit.test(statistics))
             throw new StopSearchException();
         final int nodeId = currNodeIdId++;
         if (Objects.equals(branch.getType(), "and")) {
+            System.out.println("AND branch");
+            notifySolution(parentId,nodeId, position);
             notifyBranch(parentId,nodeId, position, branch.branches.length);
             int pos = 0;
             List<List<HashMap<Integer, Integer>>> liste = new ArrayList<>();
+            int a = 0;
             for (Branch b : branch.branches) {
+                System.out.println("    branch n° " + a);
+                a++;
                 final int p = pos;
                 sm.withNewState(() -> {
                     try {
@@ -175,11 +181,11 @@ public class AND_DFSearch {
                 for (List<HashMap<Integer, Integer>> l : liste) {
                     size *= l.size();
                 }
-                System.out.println("nombre solution :" + size);
-                for (int k = 0; k < size; k++) {
-                    statistics.incrSolutions();
-                    notifySolution(parentId,nodeId, position);
-                }
+//                System.out.println("nombre solution :" + size);
+//                for (int k = 0; k < size; k++) {
+//                    statistics.incrSolutions();
+//                    notifySolution(parentId,nodeId, position);
+//                }
             }
         } else {
             B_OR or = (B_OR) branch;
@@ -189,6 +195,7 @@ public class AND_DFSearch {
             if (branches.length == 0) {
                 if (branch.getBranches() == null){
                     if (A){
+                        notifySolution(parentId,nodeId, position);
                         List<HashMap<Integer, Integer>> Solution = new ArrayList<>();
                         HashMap<Integer, Integer> S = new HashMap<>();
                         S.put(123, 123);
@@ -302,4 +309,5 @@ public class AND_DFSearch {
             return subtables;
         }
     }
+
 }

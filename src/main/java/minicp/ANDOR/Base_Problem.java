@@ -17,6 +17,8 @@ public class Base_Problem {
         IntVar[] V = Factory.makeIntVarArray(cp, index, index);
         IntVar[] H = Factory.makeIntVarArray(cp, index, index);
         //IntVar[] L = Factory.makeIntVarArray(cp, index, index);
+        // IntVarImpl a  = (IntVarImpl) V[0];
+        //System.out.println(a.onDomain.size());
 
         cp.post(Factory.equal(V[0], H[0]));
         //cp.post(Factory.equal(L[2], H[2]));
@@ -54,9 +56,9 @@ public class Base_Problem {
             }
         });
 
-        search.onSolution(() ->
+        search.onSolution(() -> System.out.printf("")
                 //System.out.println("solution:"  + Arrays.toString(V))
-                System.out.println("solution:\n V: " + Arrays.toString(V) + "\n H:- " + Arrays.toString(H) )//+ "\n L:- " + Arrays.toString(L))
+                //System.out.println("solution:\n V: " + Arrays.toString(V) + "\n H:- " + Arrays.toString(H) )//+ "\n L:- " + Arrays.toString(L))
         );
         SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 1000);
 

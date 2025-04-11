@@ -1,0 +1,52 @@
+package minicp.ANDOR;
+
+import minicp.ANDOR.AND_DFSearch.B_AND;
+import minicp.ANDOR.AND_DFSearch.B_OR;
+import minicp.ANDOR.AND_DFSearch.Branch;
+import minicp.cp.Factory;
+import minicp.engine.core.IntVar;
+import minicp.engine.core.Solver;
+import minicp.search.SearchStatistics;
+
+import java.util.Arrays;
+
+
+public class AND_test2 {
+    public static void main(String[] args) {
+
+        Solver cp = Factory.makeSolver(false);
+        int index = 2;
+        IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
+        IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
+        //IntVar[] L = Factory.makeIntVarArray(cp, index, index);
+
+        IntVar Y = Factory.makeIntVar(cp,5);
+        Y.fix(4);
+        cp.post(Factory.sum(X, Y));
+        cp.post(Factory.sum(Z, Y));
+
+        AND_DFSearch search = new AND_DFSearch(cp);
+
+        search.onSolution(() ->
+                System.out.println( X[0] +" + " +  X[1] + " = " + Y + "\n" +  Z[0] +" + " +  Z[1] + " = " + Y +"\n")
+                //System.out.println("    Egypte :" + V[0] + "\n Afrique 1 :" + H[1] + " Afrique 2 :" + H[2] + "\n Asie 1 :" + V[1] + " Asie 2 :" + V[2] + "\n")
+                //System.out.println("    V: " + Arrays.toString(V) + "\t H: " + Arrays.toString(H) )//+ "\n L:- " + Arrays.toString(L))
+        );
+
+
+
+        //
+        B_OR B_OR1 = new B_OR(null,new IntVar[]{X[1],X[0]});
+        B_OR B_OR2 = new B_OR(null,new IntVar[]{Z[1],Z[0]});
+        B_AND b_and = new B_AND(new B_OR[]{B_OR1,B_OR2});
+        B_OR B_ORR2 = new B_OR(new Branch[]{b_and},new IntVar[]{Y});
+
+        SearchStatistics stats = search.solve(B_ORR2,statistics -> statistics.numberOfSolutions() == 1000);
+
+        System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
+        System.out.format("Statistics: %s\n", stats);
+
+        //System.identityHashCode(List[0]);
+
+    }
+}
