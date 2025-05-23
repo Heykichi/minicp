@@ -1,10 +1,9 @@
-package minicp.ANDOR;
+package minicp.ANDOR_test;
 
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
-import minicp.util.Procedure;
-import java.util.HashMap;
+
 import java.util.Arrays;
 
 public class Base_AND_Problem {

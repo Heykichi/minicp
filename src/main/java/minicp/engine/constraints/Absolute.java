@@ -40,15 +40,68 @@ public class Absolute extends AbstractConstraint {
     }
 
     public void post() {
-        // TODO
-         throw new NotImplementedException("Absolute");
+        if (y.isFixed()) {
+            if (x.contains(y.min()) && x.contains(-y.min())) {
+                propagate();
+            } else if (x.contains(y.min())) {
+                x.fix(y.min());
+            } else if (x.contains(-y.min())) {
+                x.fix(-y.min());
+            }
+        } else if (x.isFixed()) {
+            y.fix(Math.abs(x.min()));
+        } else {
+            propagate();
+            int[] domVal = new int[Math.max(x.size(), y.size())];
+            x.whenDomainChange(() -> {
+                boundsIntersect();
+                int nVal = y.fillArray(domVal);
+                for (int k = 0; k < nVal; k++)
+                    if (!(x.contains(domVal[k]) || x.contains(-domVal[k])))
+                        y.remove(domVal[k]);
+            });
+            y.whenDomainChange(() -> {
+                boundsIntersect();
+                int nVal = x.fillArray(domVal);
+                for (int k = 0; k < nVal; k++)
+                    if (!y.contains(Math.abs(domVal[k])))
+                        x.remove(domVal[k]);
+
+            });
+        }
     }
 
     @Override
     public void propagate() {
-        // y = |x|
-        // TODO
-         throw new NotImplementedException("Absolute");
+        y.removeBelow(0);
+        boundsIntersect();
+        int[] domVal = new int[Math.max(x.size(), y.size())];
+        int nVal = x.fillArray(domVal);
+        for (int k = 0; k < nVal; k++)
+            if (!y.contains(Math.abs(domVal[k])))
+                x.remove(domVal[k]);
+        nVal = y.fillArray(domVal);
+        for (int k = 0; k < nVal; k++) {
+            System.out.println(domVal[k]);
+            if (!(x.contains(domVal[k]) || x.contains(-domVal[k])))
+                y.remove(domVal[k]);
+        }
     }
 
+    private void boundsIntersect() {
+        x.removeBelow(-y.max());
+        x.removeAbove(y.max());
+        if (x.max() < 0) {
+            y.removeBelow(Math.abs(x.max()));
+            y.removeAbove(Math.abs(x.min()));
+        }else {
+            y.removeAbove(Math.max(Math.abs(x.min()), x.max()));
+            y.removeBelow(Math.min(x.min(), x.max()));
+        }
+    }
+
+    @Override
+    public IntVar[] getVars() {
+        return new IntVar[]{x, y};
+    }
 }

@@ -47,7 +47,11 @@ public class Maximum extends AbstractConstraint {
         // TODO
         //  - call the constraint on all bound changes for the variables (x.propagateOnBoundChange(this))
         //  - call a first time the propagate() method to trigger the propagation
-         throw new NotImplementedException("Maximum");
+        for (IntVar x1 : x){
+            x1.propagateOnBoundChange(this);
+        }
+        y.propagateOnBoundChange(this);
+        propagate();
     }
 
 
@@ -56,6 +60,31 @@ public class Maximum extends AbstractConstraint {
         // TODO
         //  - update the min and max values of each x[i] based on the bounds of y
         //  - update the min and max values of each y based on the bounds of all x[i]
-         throw new NotImplementedException("Maximum");
+        int max = Integer.MIN_VALUE;
+        int min = Integer.MIN_VALUE;
+        int n = 0;
+        IntVar i = null;
+        for (IntVar var : x){
+            var.removeAbove(y.max());
+            if (var.max() >= y.min() && var.max() <= y.max()) {
+                n ++;
+                i = var;
+            }
+            else if (var.min() <= y.max() && var.min() >= y.min()) {
+                n ++;
+                i = var;
+            }
+            else if (var.min() <= y.min() && var.max() >= y.max()) {
+                n ++;
+                i = var;
+            }
+            max = Math.max(max, var.max());
+            min = Math.max(min, var.min());
+        }
+        y.removeBelow(min);
+        y.removeAbove(max);
+        if (n == 1){
+            i.removeBelow(y.min());
+        }
     }
 }

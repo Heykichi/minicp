@@ -247,26 +247,26 @@ public class AND_DFSearch {
     }
 
 
-    static abstract class Branch {
-        private String type;
-        private Branch[] branches;
+    public static abstract class Branch {
+        private final String type;
+        private final Branch[] branches;
         public Branch(String type, Branch[] branches) {
             this.type = type;
             this.branches = branches;
         }
         public String getType() {
-            return type;
+            return this.type;
         }
         public Branch[] getBranches() {
-            return branches;
+            return this.branches;
         }
     }
-    static class B_AND extends Branch {
+    public static class B_AND extends Branch {
         public B_AND(Branch[] branches){
             super("and", branches);
         }
     }
-    static class B_OR extends Branch {
+    public static class B_OR extends Branch {
         private IntVar[] variables;
 
         public B_OR(Branch[] branches, IntVar[] variables){
@@ -275,39 +275,7 @@ public class AND_DFSearch {
         }
 
         public IntVar[] getVariables() {
-            return variables;
+            return this.variables;
         }
     }
-
-    static class SubTable {
-        private List<Map<String, Integer>> variables;
-        public SubTable() {
-            this.variables = new ArrayList<>();
-        }
-        public void addSolution(Map<String, Integer> variables) {
-            this.variables.add(variables);
-        }
-        public List<Map<String, Integer>> getSolutions() {
-            return variables;
-        }
-    }
-    class SlicedTable {
-        private Map<String, Integer> pattern;
-        private List<SubTable> subtables;
-
-        public SlicedTable(Map<String, Integer> pattern, int N) {
-            this.pattern = pattern;
-            this.subtables = new ArrayList<>();
-        }
-        public void addSubTable(SubTable subTable) {
-            this.subtables.add(subTable);
-        }
-        public Map<String, Integer> getPattern() {
-            return pattern;
-        }
-        public List<SubTable> getSubTables() {
-            return subtables;
-        }
-    }
-
 }

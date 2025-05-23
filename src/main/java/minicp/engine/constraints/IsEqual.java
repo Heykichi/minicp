@@ -70,4 +70,9 @@ public class IsEqual extends AbstractConstraint { // b <=> x == v
             setActive(false);
         }
     }
+
+    @Override
+    public IntVar[] getVars() {
+        return new IntVar[]{x};
+    }
 }

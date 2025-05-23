@@ -19,6 +19,9 @@ import minicp.engine.core.AbstractConstraint;
 import minicp.engine.core.IntVar;
 import minicp.util.exception.NotImplementedException;
 
+import java.util.List;
+import java.util.Arrays;
+
 /**
  * Not Equal constraint between two variables
  */
@@ -71,4 +74,9 @@ public class NotEqual extends AbstractConstraint {
         else y.remove(x.min() - v);
         setActive(false);
     }
+    @Override
+    public IntVar[] getVars() {
+        return new IntVar[]{x , y};
+    }
+
 }

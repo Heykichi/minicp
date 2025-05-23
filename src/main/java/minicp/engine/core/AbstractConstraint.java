@@ -62,4 +62,6 @@ public abstract class AbstractConstraint implements Constraint {
     public boolean isActive() {
         return active.value();
     }
+
+    public IntVar[] getVars(){return null;}
 }

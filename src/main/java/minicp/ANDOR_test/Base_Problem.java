@@ -1,4 +1,4 @@
-package minicp.ANDOR;
+package minicp.ANDOR_test;
 
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
@@ -6,8 +6,6 @@ import minicp.engine.core.Solver;
 import minicp.search.DFSearch;
 import minicp.search.SearchStatistics;
 import minicp.util.Procedure;
-
-import java.util.Arrays;
 
 public class Base_Problem {
     public static void main(String[] args) {

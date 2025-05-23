@@ -74,5 +74,10 @@ public interface Constraint {
      */
     boolean isActive();
 
+    /**
+     * Returns the variables of the constraint.
+     * @return the list of variables used in the constraint.
+     */
+    IntVar[] getVars();
 
 }

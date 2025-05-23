@@ -37,6 +37,7 @@ public class Sum extends AbstractConstraint {
     private IntVar[] x;
     private int[] min, max;
     private int n;
+    private IntVar[] list_Var = null;
 
     /**
      * Creates a sum constraint.
@@ -49,6 +50,8 @@ public class Sum extends AbstractConstraint {
     public Sum(IntVar[] x, IntVar y) {
         this(Arrays.copyOf(x, x.length + 1));
         this.x[x.length] = Factory.minus(y);
+        this.list_Var = Arrays.copyOf(x, x.length+ 1);
+        this.list_Var[x.length] = y;
     }
 
     /**
@@ -62,6 +65,7 @@ public class Sum extends AbstractConstraint {
     public Sum(IntVar[] x, int y) {
         this(Arrays.copyOf(x, x.length + 1));
         this.x[x.length] = Factory.makeIntVar(getSolver(), -y, -y);
+        this.list_Var = Arrays.copyOf(x, x.length);
     }
 
     /**
@@ -80,6 +84,7 @@ public class Sum extends AbstractConstraint {
         nFixed = getSolver().getStateManager().makeStateInt(0);
         sumFixed = getSolver().getStateManager().makeStateRef(Long.valueOf(0));
         fixed = IntStream.range(0, n).toArray();
+        this.list_Var = Arrays.copyOf(x, x.length);
     }
 
     @Override
@@ -119,5 +124,9 @@ public class Sum extends AbstractConstraint {
             x[idx].removeAbove(-((int) (sumMin - min[idx])));
             x[idx].removeBelow(-((int) (sumMax - max[idx])));
         }
+    }
+    @Override
+    public IntVar[] getVars() {
+        return list_Var;
     }
 }

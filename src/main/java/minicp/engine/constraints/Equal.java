@@ -44,6 +44,11 @@ public class Equal extends AbstractConstraint {
         }
     }
 
+    @Override
+    public IntVar[] getVars() {
+        return new IntVar[]{x, y};
+    }
+
     // dom consistent filtering in the direction from -> to
     // every value of to has a support in from
     private void pruneEquals(IntVar from, IntVar to, int[] domVal) {
