@@ -15,6 +15,7 @@
 
 package minicp.cp;
 
+import minicp.ANDOR.AND_MiniCP;
 import minicp.engine.constraints.*;
 import minicp.engine.core.*;
 import minicp.search.DFSearch;
@@ -75,6 +76,24 @@ public final class Factory {
      */
     public static Solver makeSolver(boolean byCopy) {
         return new MiniCP(byCopy ? new Copier() : new Trailer());
+    }
+
+    /**
+     * Creates a constraint programming solver with a constraint graph
+     * @return a constraint programming solver with trail-based memory management
+     */
+    public static Solver makeANDSolver() {
+        return new AND_MiniCP(new Trailer());
+    }
+    /**
+     * Creates a constraint programming solver with a constraint graph
+     * @param byCopy a value that should be true to specify
+     *               copy-based state management
+     *               or false for a trail-based memory management
+     * @return a constraint programming solver
+     */
+    public static Solver makeANDSolver(boolean byCopy) {
+        return new AND_MiniCP(byCopy ? new Copier() : new Trailer());
     }
 
     /**

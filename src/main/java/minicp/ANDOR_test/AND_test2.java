@@ -14,7 +14,7 @@ import minicp.search.SearchStatistics;
 public class AND_test2 {
     public static void main(String[] args) {
 
-        Solver cp = Factory.makeSolver(false);
+        Solver cp = Factory.makeANDSolver(false);
         int index = 2;
         IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
         IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);

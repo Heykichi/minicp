@@ -11,11 +11,7 @@ public class SubTable {
         this.variables = new ArrayList<>();
     }
 
-    public void addSolution(Map<String, Integer> variables) {
-        this.variables.add(variables);
-    }
+    public void addSolution(Map<String, Integer> variables) {this.variables.add(variables);}
 
-    public List<Map<String, Integer>> getSolutions() {
-        return variables;
-    }
+    public List<Map<String, Integer>> getSolutions() {return variables;}
 }

@@ -38,9 +38,12 @@ public class AND_MiniCP implements Solver {
 
     private final StateStack<IntVar> vars;
 
+    private ConstraintGraph graph;
+
     public AND_MiniCP(StateManager sm) {
         this.sm = sm;
         vars = new StateStack<>(sm);
+        this.graph = new ConstraintGraph();
     }
 
     @Override
@@ -116,4 +119,6 @@ public class AND_MiniCP implements Solver {
     public String toString() {
         return "MiniCP(" + sm + ")";
     }
+
+    public ConstraintGraph getGraph() {return this.graph;}
 }

@@ -37,7 +37,7 @@ public class Base_Problem {
                     break;
                 }
             if (idx == -1)
-                for (int k = 0; k < H.length; k++)
+                for (int k = 0; k < V.length; k++)
                     if (V[k].size() > 1) {
                         idx = k;
                         axe = false;
