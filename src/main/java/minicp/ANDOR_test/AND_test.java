@@ -9,6 +9,7 @@ import minicp.search.SearchStatistics;
 import minicp.ANDOR.AND_DFSearch.*;
 
 import java.util.Arrays;
+import java.util.Set;
 
 
 public class AND_test {
@@ -16,6 +17,7 @@ public class AND_test {
 
         Solver cp = Factory.makeSolver(false);
         int index = 3;
+
         IntVar[] V = Factory.makeIntVarArray(cp, index, index);
         IntVar[] H = Factory.makeIntVarArray(cp, index, index);
         //IntVar[] L = Factory.makeIntVarArray(cp, index, index);

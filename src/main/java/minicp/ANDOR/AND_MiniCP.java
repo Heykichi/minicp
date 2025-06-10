@@ -23,10 +23,7 @@ import minicp.state.StateStack;
 import minicp.util.Procedure;
 import minicp.util.exception.InconsistencyException;
 
-import java.util.ArrayDeque;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 
 public class AND_MiniCP implements Solver {
@@ -43,7 +40,7 @@ public class AND_MiniCP implements Solver {
     public AND_MiniCP(StateManager sm) {
         this.sm = sm;
         vars = new StateStack<>(sm);
-        this.graph = new ConstraintGraph();
+        this.graph = new ConstraintGraph(this);
     }
 
     @Override
@@ -105,8 +102,13 @@ public class AND_MiniCP implements Solver {
 
     @Override
     public void post(Constraint c, boolean enforceFixPoint) {
+        IntVar[] variables = c.getVars();
+        if (variables != null && variables.length > 0) {
+            this.graph.addNode(variables);
+        }
         c.post();
         if (enforceFixPoint) fixPoint();
+
     }
 
     @Override
@@ -120,5 +122,6 @@ public class AND_MiniCP implements Solver {
         return "MiniCP(" + sm + ")";
     }
 
+    @Override
     public ConstraintGraph getGraph() {return this.graph;}
 }

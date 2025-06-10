@@ -21,6 +21,7 @@ import minicp.util.exception.InconsistencyException;
 import minicp.util.exception.NotImplementedException;
 
 import java.security.InvalidParameterException;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -100,7 +101,16 @@ public class IntVarImpl implements IntVar {
      * @param values the initial values in the domain, it must be nonempty
      */
     public IntVarImpl(Solver cp, Set<Integer> values) {
-         throw new NotImplementedException();
+        this.cp = cp;
+        domain = new SparseSetDomain(cp.getStateManager(), Collections.min(values), Collections.max(values));
+        onDomain = new StateStack<>(cp.getStateManager());
+        onFix = new StateStack<>(cp.getStateManager());
+        onBound = new StateStack<>(cp.getStateManager());
+        int[] d = new int[domain.size()];
+        domain.fillArray(d);
+        for (int v : d) {
+            if (!values.contains(v)) remove(v);
+        }
     }
 
     @Override

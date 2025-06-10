@@ -1,25 +1,43 @@
 package minicp.ANDOR;
 
+import minicp.engine.core.IntDomain;
+import minicp.engine.core.IntVar;
+import minicp.engine.core.Solver;
+import minicp.engine.core.SparseSetDomain;
+import minicp.state.StateManager;
+import minicp.state.StateSparseSet;
+
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 // TO DO
-// STATE
+// STATE => state manger => specific statestack
 // REMOVE
+// CUT
+
 
 public class ConstraintGraph {
 
-    private Map<String, Set<String>> adjacencyList;
+    private Map<IntVar, Set<IntVar>> adjacencyList;
+    private final Solver cp;
 
-    public ConstraintGraph() {
+    public ConstraintGraph(Solver cp) {
+        this.cp = cp;
         this.adjacencyList = new HashMap<>();
     }
 
-    public void addNode(String node) {
-        this.adjacencyList.putIfAbsent(node, new HashSet<>());
+    public void addNode(IntVar node) {
+        this.adjacencyList.putIfAbsent(node, new HashSet<IntVar>());
     }
 
-    public void addEdge(String node1, String node2) {
+    public void addNode(IntVar[] node) {
+        for (IntVar n : node) {
+            this.adjacencyList.putIfAbsent(n, new HashSet<IntVar>());
+        }
+    }
+
+    public void addEdge(IntVar node1, IntVar node2) {
         if (node1.equals(node2)) {
             throw new IllegalArgumentException("Self-edge are not allowed");
         }
@@ -34,13 +52,13 @@ public class ConstraintGraph {
      *
      * @return a list of sets, where each set contains the nodes of an independent subgraph
      */
-    public List<Set<String>> findIndependentSubgraphs() {
-        List<Set<String>> subgraphs = new ArrayList<>();
-        Set<String> visited = new HashSet<>();
+    public List<Set<IntVar>> findIndependentSubgraphs() {
+        List<Set<IntVar>> subgraphs = new ArrayList<>();
+        Set<IntVar> visited = new HashSet<>();
 
-        for (String node : adjacencyList.keySet()) {
+        for (IntVar node : adjacencyList.keySet()) {
             if (!visited.contains(node)) {
-                Set<String> subgraph = new HashSet<>();
+                Set<IntVar> subgraph = new HashSet<>();
                 dfs(node, visited, subgraph);
                 subgraphs.add(subgraph);
             }
@@ -56,11 +74,11 @@ public class ConstraintGraph {
      * @param visited   set of nodes that have been visited
      * @param component the current component being built
      */
-    private void dfs(String node, Set<String> visited, Set<String> component) {
+    private void dfs(IntVar node, Set<IntVar> visited, Set<IntVar> component) {
         visited.add(node);
         component.add(node);
 
-        for (String neighbor : adjacencyList.get(node)) {
+        for (IntVar neighbor : adjacencyList.get(node)) {
             if (!visited.contains(neighbor)) {
                 dfs(neighbor, visited, component);
             }
@@ -70,8 +88,16 @@ public class ConstraintGraph {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, Set<String>> entry : adjacencyList.entrySet()) {
-            sb.append(entry.getKey()).append(" -> ").append(entry.getValue()).append("\n");
+        for (Map.Entry<IntVar, Set<IntVar>> entry : adjacencyList.entrySet()) {
+            sb.append(System.identityHashCode(entry.getKey()));
+            sb.append(" : ");
+            sb.append(entry.getKey());
+            sb.append(" -> ");
+            sb.append(entry.getValue().stream()
+                    .map(System::identityHashCode)
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(", ")));
+            sb.append("\n");
         }
         return sb.toString();
     }

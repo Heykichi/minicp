@@ -15,6 +15,7 @@
 
 package minicp.engine.core;
 
+import minicp.ANDOR.ConstraintGraph;
 import minicp.search.Objective;
 import minicp.state.StateManager;
 import minicp.util.Procedure;
@@ -93,5 +94,14 @@ public interface Solver {
      * @param b the variable that must be set to true
      */
     void post(BoolVar b);
+
+    /**
+     * Returns the constraint graph associated with the solver.
+     * The constraint graph represents relationships between variables
+     * and constraints in the solver.
+     *
+     * @return the constraint graph
+     */
+    ConstraintGraph getGraph();
 }
 

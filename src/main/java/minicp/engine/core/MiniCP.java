@@ -15,6 +15,7 @@
 
 package minicp.engine.core;
 
+import minicp.ANDOR.ConstraintGraph;
 import minicp.cp.Factory;
 import minicp.search.Objective;
 import minicp.state.StateManager;
@@ -35,11 +36,11 @@ public class MiniCP implements Solver {
 
     private final StateManager sm;
 
-    private final StateStack<IntVar> vars;
+    //private final StateStack<IntVar> vars;
 
     public MiniCP(StateManager sm) {
         this.sm = sm;
-        vars = new StateStack<>(sm);
+        //vars = new StateStack<>(sm);
     }
 
     @Override
@@ -109,6 +110,11 @@ public class MiniCP implements Solver {
     public void post(BoolVar b) {
         b.fix(true);
         fixPoint();
+    }
+
+    @Override
+    public ConstraintGraph getGraph() {
+        return null;
     }
 
     @Override

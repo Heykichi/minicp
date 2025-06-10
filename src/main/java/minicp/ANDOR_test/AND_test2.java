@@ -22,9 +22,6 @@ public class AND_test2 {
 
         IntVar Y = Factory.makeIntVar(cp,5);
         //Y.fix(4);
-        System.out.println(System.identityHashCode(Y));
-        Constraint C = Factory.notEqual(X[1], Y);
-        System.out.println(System.identityHashCode(C.getVars()[1]));
         cp.post(Factory.sum(X, Y));
         cp.post(Factory.sum(Z, Y));
 
