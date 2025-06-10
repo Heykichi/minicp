@@ -27,6 +27,12 @@ public class ConstraintGraph {
         this.adjacencyList = new HashMap<>();
     }
 
+    public List<IntVar> getUnfixedNeighbors (IntVar key){
+        return adjacencyList.get(key).stream()
+                .filter(var -> !var.isFixed())
+                .collect(Collectors.toList());
+    }
+
     public void addNode(IntVar node) {
         this.adjacencyList.putIfAbsent(node, new HashSet<IntVar>());
     }
@@ -46,6 +52,8 @@ public class ConstraintGraph {
         adjacencyList.get(node1).add(node2);
         adjacencyList.get(node2).add(node1);
     }
+    
+     
 
     /**
      * Finds all independent subgraphs in the constraint graph.
@@ -78,7 +86,7 @@ public class ConstraintGraph {
         visited.add(node);
         component.add(node);
 
-        for (IntVar neighbor : adjacencyList.get(node)) {
+        for (IntVar neighbor : this.getUnfixedNeighbors(node)) {
             if (!visited.contains(neighbor)) {
                 dfs(neighbor, visited, component);
             }
@@ -93,10 +101,14 @@ public class ConstraintGraph {
             sb.append(" : ");
             sb.append(entry.getKey());
             sb.append(" -> ");
-            sb.append(entry.getValue().stream()
-                    .map(System::identityHashCode)
-                    .map(String::valueOf)
-                    .collect(Collectors.joining(", ")));
+            if (entry.getValue().isEmpty()) {
+                sb.append(" / ");
+            } else {
+                sb.append(entry.getValue().stream()
+                        .map(System::identityHashCode)
+                        .map(String::valueOf)
+                        .collect(Collectors.joining(", ")));
+            }
             sb.append("\n");
         }
         return sb.toString();
