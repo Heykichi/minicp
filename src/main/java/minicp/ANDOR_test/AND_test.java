@@ -1,70 +1,61 @@
 package minicp.ANDOR_test;
 
 import minicp.ANDOR.AND_DFSearch;
+import minicp.ANDOR.AND_DFSearch.B_AND;
+import minicp.ANDOR.AND_DFSearch.B_OR;
+import minicp.ANDOR.Branch;
+import minicp.ANDOR.Branch;
 import minicp.cp.Factory;
+import minicp.engine.core.Constraint;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.search.SearchStatistics;
+import minicp.util.Procedure;
 
-import minicp.ANDOR.AND_DFSearch.*;
-
-import java.util.Arrays;
-import java.util.Set;
+import static minicp.ANDOR.AND_DFSearch.Branching2;
 
 
 public class AND_test {
     public static void main(String[] args) {
 
-        Solver cp = Factory.makeSolver(false);
+        Solver cp = Factory.makeANDSolver(false);
         int index = 3;
+        IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
+        IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
 
-        IntVar[] V = Factory.makeIntVarArray(cp, index, index);
-        IntVar[] H = Factory.makeIntVarArray(cp, index, index);
-        //IntVar[] L = Factory.makeIntVarArray(cp, index, index);
+        IntVar Y = Factory.makeIntVar(cp,5);
 
-        cp.post(Factory.equal(V[0], H[0]));
-        //cp.post(Factory.equal(L[2], H[2]));
-        cp.post(Factory.allDifferent(V));
-        cp.post(Factory.allDifferent(H));
-//        for (int i = 0; i < index; i++){
-//            for (int j = i + 1; j < index; j++) {
-//                cp.post(Factory.notEqual(V[i], V[j]));
-//                cp.post(Factory.notEqual(H[i], H[j]));
-//                //cp.post(Factory.notEqual(L[i], L[j]));
-//            }
-//        }
+        Y.fix(4);
+
+        cp.post(Factory.sum(X, Y));
+        cp.post(Factory.sum(Z, Y));
 
 
-        AND_DFSearch search = new AND_DFSearch(cp);
+        B_OR B_OR1 = new B_OR(null,new IntVar[]{X[1],X[0]});
+        B_OR B_OR2 = new B_OR(null,new IntVar[]{Z[1],Z[0]});
+        B_AND b_and = new B_AND(new B_OR[]{B_OR1,B_OR2});
+        B_OR B_ORR2 = new B_OR(new AND_DFSearch.AND_Branch[]{b_and},new IntVar[]{Y});
+
+        AND_DFSearch search = Factory.makeAND_Dfs(cp, () -> {
+            Procedure[] P = Branching2(cp,X);
+            Procedure left = () -> System.out.println("1");
+            Procedure right = () -> System.out.println("2");
+            return new Procedure[]{left, right};
+
+        });
+        //AND_DFSearch search = Factory.makeAND_Dfs(cp);
+
 
         search.onSolution(() ->
-                //System.out.println("solution:"  + Arrays.toString(V))
-                System.out.println("    V: " + Arrays.toString(V) + "\t H: " + Arrays.toString(H) )//+ "\n L:- " + Arrays.toString(L))
+                System.out.println( X[0] +" + " +  X[1] + " + " +  X[2] + " = " + Y + "\n" +  Z[0] +" + " +  Z[1] + " + " +  Z[2] + " = " + Y +"\n")
         );
-        /*
-        B_OR B_OR0 = new B_OR(null,new IntVar[]{L[0],H[1]});
-        B_OR B_OR1 = new B_OR(null,new IntVar[]{V[1],V[2]});
-        B_AND b_and2 = new B_AND(new B_OR[]{B_OR1,B_OR0});
-        B_OR B_OR2 = new B_OR(new Branch[]{b_and2},new IntVar[]{H[2]});
-        B_AND b_and = new B_AND(new B_OR[]{B_OR1,B_OR2});
-        B_OR B_OR0 = new B_OR(new Branch[]{b_and},new IntVar[]{H[0]});
-        */
-
-        // OR
-        B_OR B_ORR1 = new B_OR(null,new IntVar[]{V[1],V[2],H[1],H[2],H[0]});
 
         //
-        B_OR B_OR1 = new B_OR(null,new IntVar[]{V[1],V[2]});
-        B_OR B_OR2 = new B_OR(null,new IntVar[]{H[1],H[2]});
-        B_AND b_and = new B_AND(new B_OR[]{B_OR1,B_OR2});
-        B_OR B_ORR2 = new B_OR(new Branch[]{b_and},new IntVar[]{H[0]});
 
-        SearchStatistics stats = search.solve(B_ORR1,statistics -> statistics.numberOfSolutions() == 1000);
+
+        SearchStatistics stats = search.solve(B_ORR2,statistics -> statistics.numberOfSolutions() == 1000);
 
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);
-
-        //System.identityHashCode(List[0]);
-
     }
 }

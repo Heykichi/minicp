@@ -9,16 +9,15 @@ import minicp.engine.core.MiniCP;
 import minicp.engine.core.Solver;
 import minicp.state.Trailer;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class Test {
     public static void main(String[] args) {
         AND_MiniCP cp = (AND_MiniCP) Factory.makeANDSolver(false);
         ConstraintGraph g = cp.getGraph();
-        IntVar Y = Factory.makeIntVar(cp,1);
+        IntVar Y = Factory.makeIntVar(cp,4);
         IntVar Z = Factory.makeIntVar(cp,4);
         IntVar X = Factory.makeIntVar(cp,4);
         cp.post(Factory.notEqual(Y, Z));
@@ -29,12 +28,15 @@ public class Test {
         IntVar X2 = Factory.makeIntVar(cp,4);
         cp.post(Factory.notEqual(X2, Z1));
 
-        g.addEdge(Z,Y);
-        g.addEdge(Z,X);
-        System.out.println(g.findIndependentSubgraphs());
+
+        List<Set<IntVar>> L = g.findIndependentSubgraphs();
+        g.PrintSubgraph();
         System.out.println(g);
 
+        System.out.println(Z1.hashCode());
+        System.out.println(System.identityHashCode(Z1));
         // System.identityHashCode(node)
+
 
 
     }

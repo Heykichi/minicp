@@ -35,6 +35,7 @@ import java.util.function.Supplier;
 public class AND_DFSearch {
 
     private Solver cp;
+    private Supplier<Procedure[]> branching = null;
     private StateManager sm;
 
 
@@ -48,6 +49,13 @@ public class AND_DFSearch {
      * that defines the search tree dynamically.
      *
      */
+
+    public AND_DFSearch(Solver cp, Supplier<Procedure[]> branching) {
+        this.cp = cp;
+        this.sm = cp.getStateManager();
+        this.branching = branching;
+    }
+    // REMOVE
     public AND_DFSearch(Solver cp) {
         this.cp = cp;
         this.sm = cp.getStateManager();
@@ -103,7 +111,7 @@ public class AND_DFSearch {
         dfsListeners.forEach(l -> l.branch(parentId, nodeId, position, nChilds));
     }
 
-    private SearchStatistics solve(Branch branch, SearchStatistics statistics, Predicate<SearchStatistics> limit) {
+    private SearchStatistics solve(AND_Branch branch, SearchStatistics statistics, Predicate<SearchStatistics> limit) {
         currNodeIdId = 0;
         sm.withNewState(() -> {
             try {
@@ -117,7 +125,7 @@ public class AND_DFSearch {
         return statistics;
     }
 
-    public SearchStatistics solve(Branch branch,Predicate<SearchStatistics> limit) {
+    public SearchStatistics solve(AND_Branch branch,Predicate<SearchStatistics> limit) {
         SearchStatistics statistics = new SearchStatistics();
         return solve(branch,statistics, limit);
     }
@@ -141,7 +149,7 @@ public class AND_DFSearch {
         }
     }
 
-    private List<HashMap<Integer, Integer>> dfs(Branch branch, SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position, boolean A) {
+    private List<HashMap<Integer, Integer>> dfs(AND_Branch branch, SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position, boolean A) {
 
         if (limit.test(statistics))
             throw new StopSearchException();
@@ -153,7 +161,7 @@ public class AND_DFSearch {
             int pos = 0;
             List<List<HashMap<Integer, Integer>>> liste = new ArrayList<>();
             int a = 0;
-            for (Branch b : branch.branches) {
+            for (AND_Branch b : branch.branches) {
                 System.out.println("    branch n° " + a);
                 a++;
                 final int p = pos;
@@ -241,41 +249,53 @@ public class AND_DFSearch {
         return null;
     }
 
-
-    public static DFSearch makeDfs(Solver cp, Supplier<Procedure[]> branching) {
-        return new DFSearch(cp.getStateManager(), branching);
-    }
-
-
-    public static abstract class Branch {
+    public static abstract class AND_Branch {
         private final String type;
-        private final Branch[] branches;
-        public Branch(String type, Branch[] branches) {
+        private final AND_Branch[] branches;
+        public AND_Branch(String type, AND_Branch[] branches) {
             this.type = type;
             this.branches = branches;
         }
         public String getType() {
             return this.type;
         }
-        public Branch[] getBranches() {
+        public AND_Branch[] getBranches() {
             return this.branches;
         }
     }
-    public static class B_AND extends Branch {
-        public B_AND(Branch[] branches){
+    public static class B_AND extends AND_Branch {
+        public B_AND(AND_Branch[] branches){
             super("and", branches);
         }
     }
-    public static class B_OR extends Branch {
+    public static class B_OR extends AND_Branch {
         private IntVar[] variables;
 
-        public B_OR(Branch[] branches, IntVar[] variables){
+        public B_OR(AND_Branch[] branches, IntVar[] variables){
             super("or", branches);
             this.variables = variables;
         }
 
         public IntVar[] getVariables() {
             return this.variables;
+        }
+    }
+    public static Procedure[] Branching2(Solver cp, IntVar[] Variable) {
+        int idx = -1; // index of the first variable that is not fixed
+        boolean axe = true;
+        for (int k = 0; k < Variable.length; k++)
+            if (Variable[k].size() > 1) {
+                idx = k;
+                break;
+            }
+        if (idx == -1)
+            return new Procedure[0];
+        else {
+            IntVar qi = Variable[idx];
+            int v = qi.min();
+            Procedure left = () -> cp.post(Factory.equal(qi, v));
+            Procedure right = () -> cp.post(Factory.notEqual(qi, v));
+            return new Procedure[]{left, right};
         }
     }
 }

@@ -104,7 +104,7 @@ public class AND_MiniCP implements Solver {
     public void post(Constraint c, boolean enforceFixPoint) {
         IntVar[] variables = c.getVars();
         if (variables != null && variables.length > 0) {
-            this.graph.addNode(variables);
+            this.graph.addEdge(variables);
         }
         c.post();
         if (enforceFixPoint) fixPoint();

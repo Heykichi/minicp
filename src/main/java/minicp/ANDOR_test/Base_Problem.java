@@ -11,34 +11,29 @@ public class Base_Problem {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeSolver(false);
+        
         int index = 3;
-        IntVar[] V = Factory.makeIntVarArray(cp, index, index);
-        IntVar[] H = Factory.makeIntVarArray(cp, index, index);
-        //IntVar[] L = Factory.makeIntVarArray(cp, index, index);
-        // IntVarImpl a  = (IntVarImpl) V[0];
-        //System.out.println(a.onDomain.size());
+        IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
+        IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
 
-        cp.post(Factory.equal(V[0], H[0]));
-        //cp.post(Factory.equal(L[2], H[2]));
-        for (int i = 0; i < index; i++){
-            for (int j = i + 1; j < index; j++) {
-                cp.post(Factory.notEqual(V[i], V[j]));
-                cp.post(Factory.notEqual(H[i], H[j]));
-                //cp.post(Factory.notEqual(L[i], L[j]));
-            }
-        }
+        IntVar Y = Factory.makeIntVar(cp,5);
+
+        Y.fix(4);
+
+        cp.post(Factory.sum(X, Y));
+        cp.post(Factory.sum(Z, Y));
 
         DFSearch search = Factory.makeDfs(cp, () -> {
             int idx = -1; // index of the first variable that is not fixed
             boolean axe = true;
-            for (int k = 0; k < H.length; k++)
-                if (H[k].size() > 1) {
+            for (int k = 0; k < X.length; k++)
+                if (X[k].size() > 1) {
                     idx = k;
                     break;
                 }
             if (idx == -1)
-                for (int k = 0; k < V.length; k++)
-                    if (V[k].size() > 1) {
+                for (int k = 0; k < Z.length; k++)
+                    if (Z[k].size() > 1) {
                         idx = k;
                         axe = false;
                         break;
@@ -46,7 +41,7 @@ public class Base_Problem {
             if (idx == -1)
                 return new Procedure[0];
             else {
-                IntVar qi = axe ? H[idx] : V[idx];
+                IntVar qi = axe ? X[idx] : Z[idx];
                 int v = qi.min();
                 Procedure left = () -> cp.post(Factory.equal(qi, v));
                 Procedure right = () -> cp.post(Factory.notEqual(qi, v));
@@ -54,10 +49,11 @@ public class Base_Problem {
             }
         });
 
-        search.onSolution(() -> System.out.printf("")
-                //System.out.println("solution:"  + Arrays.toString(V))
-                //System.out.println("solution:\n V: " + Arrays.toString(V) + "\n H:- " + Arrays.toString(H) )//+ "\n L:- " + Arrays.toString(L))
+        search.onSolution(() ->
+                System.out.println( X[0] +" + " +  X[1] + " + " +  X[2] + " = " + Y + "\n" +  Z[0] +" + " +  Z[1] + " + " +  Z[2] + " = " + Y +"\n")
         );
+        
+        
         SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 1000);
 
         //search.showTree("NQUEENS");

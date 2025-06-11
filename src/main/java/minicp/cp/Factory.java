@@ -15,7 +15,9 @@
 
 package minicp.cp;
 
+import minicp.ANDOR.AND_DFSearch;
 import minicp.ANDOR.AND_MiniCP;
+import minicp.ANDOR.Branch;
 import minicp.engine.constraints.*;
 import minicp.engine.core.*;
 import minicp.search.DFSearch;
@@ -28,6 +30,7 @@ import minicp.util.exception.IntOverFlowException;
 
 import java.util.Arrays;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -217,6 +220,15 @@ public final class Factory {
      */
     public static DFSearch makeDfs(Solver cp, Supplier<Procedure[]> branching) {
         return new DFSearch(cp.getStateManager(), branching);
+    }
+
+    public static AND_DFSearch makeAND_Dfs(Solver cp, Supplier<Procedure[]> branching) {
+        return new AND_DFSearch(cp, branching);
+    }
+
+    // REMOVE
+    public static AND_DFSearch makeAND_Dfs(Solver cp) {
+        return new AND_DFSearch(cp);
     }
 
     // -------------- constraints -----------------------
