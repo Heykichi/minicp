@@ -222,7 +222,7 @@ public final class Factory {
         return new DFSearch(cp.getStateManager(), branching);
     }
 
-    public static AND_DFSearch makeAND_Dfs(Solver cp, Supplier<Procedure[]> branching) {
+    public static AND_DFSearch makeAND_Dfs(Solver cp, Supplier<Branch> branching) {
         return new AND_DFSearch(cp, branching);
     }
 

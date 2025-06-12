@@ -7,19 +7,27 @@ public class Branch {
 
     private IntVar[] variables = null;
     private Branch[] branches = null;
-    private boolean end = true;
+    private int end = -1;
 
-    public Branch(IntVar[] variables, Branch[] branches, boolean end) {
+    public Branch(IntVar[] variables, Branch[] branches, int end) {
         this.variables = variables;
         this.branches = branches;
         this.end = end;
     }
 
-    public Branch(IntVar[] variables, boolean end) {
+    public Branch(IntVar[] variables, Branch[] branches) {
+        this.variables = variables;
+        this.branches = branches;
+    }
+
+    public Branch(IntVar[] variables, int end) {
         this.variables = variables;
         this.end = end;
     }
-    public Branch(Branch[] branches, boolean end) {
+    public Branch(IntVar[] variables) {
+        this.variables = variables;
+    }
+    public Branch(Branch[] branches, int end) {
         this.branches = branches;
         this.end = end;
     }
@@ -28,7 +36,7 @@ public class Branch {
 
     public void setVariables(IntVar[] variables) {this.variables = variables;}
 
-    public void setEnd(boolean end) {this.end = end;}
+    public void setEnd(int end) {this.end = end;}
 
     public IntVar[] getVariables() {
         return this.variables;
@@ -36,5 +44,5 @@ public class Branch {
 
     public Branch[] getBranches() {return this.branches;}
 
-    public boolean isEnd() {return this.end;}
+    public int getEnd() {return this.end;}
 }

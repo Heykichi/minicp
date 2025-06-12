@@ -1,11 +1,9 @@
 package minicp.ANDOR;
 
-import minicp.engine.core.IntDomain;
+import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
-import minicp.engine.core.SparseSetDomain;
-import minicp.state.StateManager;
-import minicp.state.StateSparseSet;
+import minicp.state.StateStack;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,10 +18,12 @@ public class ConstraintGraph {
 
     private Map<IntVar, Set<IntVar>> adjacencyList;
     private final Solver cp;
+    private StateStack<ArrayList<IntVar>> stateVars;
 
     public ConstraintGraph(Solver cp) {
         this.cp = cp;
         this.adjacencyList = new HashMap<>();
+        this.stateVars = new StateStack<ArrayList<IntVar>>(cp.getStateManager());
     }
 
     /**
@@ -37,6 +37,14 @@ public class ConstraintGraph {
                 .filter(var -> !var.isFixed())
                 .collect(Collectors.toList());
     }
+
+    public ArrayList<IntVar> getVariables() {
+        return adjacencyList.keySet().stream()
+                .filter(IntVar::isFixed)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public ArrayList<IntVar> getStateVariables(){return this.stateVars.getLastElement();}
 
     /**
      * Adds a node to the constraint graph if the node does not already exist.
@@ -92,8 +100,22 @@ public class ConstraintGraph {
             }
         }
     }
-    
-     
+
+    public void computeStateVariables(){
+        this.stateVars.push(getVariables());
+    }
+
+    public void computeStateVariables(IntVar variable){
+        ArrayList<IntVar> newstateVars = new ArrayList<>(this.stateVars.getLastElement());
+        newstateVars.add(variable);
+        this.stateVars.push(newstateVars);
+    }
+
+    public void computeStateVariables(IntVar[] variables){
+        ArrayList<IntVar> newstateVars = new ArrayList<>(this.stateVars.getLastElement());
+        newstateVars.addAll(Arrays.asList(variables));
+        this.stateVars.push(newstateVars);
+    }
 
     /**
      * Finds all independent subgraphs in the constraint graph.

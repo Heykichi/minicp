@@ -5,22 +5,31 @@ import java.util.List;
 import java.util.Map;
 
 public class SlicedTable {
-    private Map<String, Integer> pattern;
+    private Map<String, Integer> pattern= null;
     private List<SubTable> subtables;
+    private List<SlicedTable> subSlicedTables;
 
-    public SlicedTable(Map<String, Integer> pattern, int N) {
+    public SlicedTable(Map<String, Integer> pattern) {
         this.pattern = pattern;
         this.subtables = new ArrayList<SubTable>();
+        this.subSlicedTables = new ArrayList<SlicedTable>();
+    }
+
+    public SlicedTable() {
+        this.subtables = new ArrayList<SubTable>();
+        this.subSlicedTables = new ArrayList<SlicedTable>();
     }
 
     public void addSubTable(SubTable subTable) {this.subtables.add(subTable);}
 
+    public void addSubSlicedTable(SlicedTable subSlicedTable) {this.subSlicedTables.add(subSlicedTable);}
+
     public Map<String, Integer> getPattern() {return pattern;}
 
     public List<SubTable> getSubTables() {return subtables;}
+
+    public List<SlicedTable> getSubSlicedTables() {return subSlicedTables;}
 }
-// TO DO
-// peut contenir des sliced tables au lieu des solutions
-// fonction pour transformer une sliced tables en liste de solutions
+// TODO fonction pour transformer une sliced tables en liste de solutions
 
 
