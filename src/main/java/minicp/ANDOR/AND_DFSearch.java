@@ -238,6 +238,7 @@ public class AND_DFSearch {
         if (branches.length == 0) {
             if (branch.getBranches() == null){
                 if (A){
+                    statistics.incrSolutions();
                     notifySolution(parentId,nodeId, position);
                     SlicedTable Solution = new SlicedTable();
                     SubTable subTable = new SubTable();
@@ -253,7 +254,8 @@ public class AND_DFSearch {
 
             } else {
                 final int p = pos;
-                SlicedTable Solutions = dfs(branch.getBranches()[0], statistics, limit, nodeId, p, A);
+                branch.setVariables(null);
+                SlicedTable Solutions = dfs(branch, statistics, limit, nodeId, p, A);
                 if (A){
                     return Solutions;
                 }

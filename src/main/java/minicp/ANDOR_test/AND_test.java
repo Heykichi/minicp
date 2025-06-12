@@ -23,6 +23,8 @@ public class AND_test {
 
         IntVar Y = Factory.makeIntVar(cp,5);
 
+        Y.fix(4);
+
         cp.post(Factory.sum(X, Y));
         cp.post(Factory.sum(Z, Y));
 
