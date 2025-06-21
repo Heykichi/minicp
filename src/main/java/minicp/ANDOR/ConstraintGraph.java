@@ -1,6 +1,5 @@
 package minicp.ANDOR;
 
-import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.state.StateStack;
@@ -18,12 +17,12 @@ public class ConstraintGraph {
 
     private Map<IntVar, Set<IntVar>> adjacencyList;
     private final Solver cp;
-    private StateStack<ArrayList<IntVar>> stateVars;
+    private StateStack<Set<IntVar>> stateVars;
 
     public ConstraintGraph(Solver cp) {
         this.cp = cp;
         this.adjacencyList = new HashMap<>();
-        this.stateVars = new StateStack<ArrayList<IntVar>>(cp.getStateManager());
+        this.stateVars = new StateStack<Set<IntVar>>(cp.getStateManager());
     }
 
     /**
@@ -40,11 +39,11 @@ public class ConstraintGraph {
 
     public ArrayList<IntVar> getVariables() {
         return adjacencyList.keySet().stream()
-                .filter(IntVar::isFixed)
+                .filter(var -> !var.isFixed())
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public ArrayList<IntVar> getStateVariables(){return this.stateVars.getLastElement();}
+    public Set<IntVar> getStateVariables(){return this.stateVars.getLastElement();}
 
     /**
      * Adds a node to the constraint graph if the node does not already exist.
@@ -102,19 +101,19 @@ public class ConstraintGraph {
     }
 
     public void computeStateVariables(){
-        this.stateVars.push(getVariables());
+        this.stateVars.push(new HashSet<IntVar>(getVariables()));
     }
 
     public void computeStateVariables(IntVar variable){
-        ArrayList<IntVar> newstateVars = new ArrayList<>(this.stateVars.getLastElement());
-        newstateVars.add(variable);
-        this.stateVars.push(newstateVars);
+        Set<IntVar> newStateVars = this.stateVars.getLastElement();
+        newStateVars.add(variable);
+        this.stateVars.push((Set<IntVar>)newStateVars);
     }
 
     public void computeStateVariables(IntVar[] variables){
-        ArrayList<IntVar> newstateVars = new ArrayList<>(this.stateVars.getLastElement());
-        newstateVars.addAll(Arrays.asList(variables));
-        this.stateVars.push(newstateVars);
+        Set<IntVar> newStateVars = this.stateVars.getLastElement();
+        newStateVars.addAll(Arrays.asList(variables));
+        this.stateVars.push(newStateVars);
     }
 
     /**

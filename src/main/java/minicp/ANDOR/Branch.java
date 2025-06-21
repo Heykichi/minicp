@@ -1,18 +1,17 @@
 package minicp.ANDOR;
 
 import minicp.engine.core.IntVar;
-import minicp.util.Procedure;
 
 public class Branch {
 
     private IntVar[] variables = null;
     private Branch[] branches = null;
-    private int end = -1;
+    private boolean rebranching = false;
 
-    public Branch(IntVar[] variables, Branch[] branches, int end) {
+    public Branch(IntVar[] variables, Branch[] branches, boolean rebranching) {
         this.variables = variables;
         this.branches = branches;
-        this.end = end;
+        this.rebranching = rebranching;
     }
 
     public Branch(IntVar[] variables, Branch[] branches) {
@@ -20,23 +19,24 @@ public class Branch {
         this.branches = branches;
     }
 
-    public Branch(IntVar[] variables, int end) {
+    public Branch(IntVar[] variables, boolean rebranching) {
         this.variables = variables;
-        this.end = end;
+        this.rebranching = rebranching;
     }
     public Branch(IntVar[] variables) {
         this.variables = variables;
     }
-    public Branch(Branch[] branches, int end) {
+
+    public Branch(Branch[] branches, boolean rebranching) {
         this.branches = branches;
-        this.end = end;
+        this.rebranching = rebranching;
     }
 
     public void setBranches(Branch[] branches) {this.branches = branches;}
 
     public void setVariables(IntVar[] variables) {this.variables = variables;}
 
-    public void setEnd(int end) {this.end = end;}
+    public void setRebranching(boolean rebranching) {this.rebranching = rebranching;}
 
     public IntVar[] getVariables() {
         return this.variables;
@@ -44,5 +44,5 @@ public class Branch {
 
     public Branch[] getBranches() {return this.branches;}
 
-    public int getEnd() {return this.end;}
+    public boolean getRebranching() {return this.rebranching;}
 }

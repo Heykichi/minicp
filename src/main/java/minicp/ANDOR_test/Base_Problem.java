@@ -12,13 +12,13 @@ public class Base_Problem {
 
         Solver cp = Factory.makeSolver(false);
         
-        int index = 3;
+        int index = 2;
         IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
         IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
 
-        IntVar Y = Factory.makeIntVar(cp,5);
+        IntVar Y = Factory.makeIntVar(cp,4);
 
-        Y.fix(4);
+        //Y.fix(3);
 
         cp.post(Factory.sum(X, Y));
         cp.post(Factory.sum(Z, Y));
@@ -50,7 +50,8 @@ public class Base_Problem {
         });
 
         search.onSolution(() ->
-                System.out.println( X[0] +" + " +  X[1] + " + " +  X[2] + " = " + Y + "\n" +  Z[0] +" + " +  Z[1] + " + " +  Z[2] + " = " + Y +"\n")
+                        System.out.println( "1) " + X[0] +" + " +  X[1] + " = " + Y + "\n2) " +  Z[0] +" + " +  Z[1] + " = " + Y +"\n")
+                //System.out.println( X[0] +" + " +  X[1] + " + " +  X[2] + " = " + Y + "\n" +  Z[0] +" + " +  Z[1] + " + " +  Z[2] + " = " + Y +"\n")
         );
         
         

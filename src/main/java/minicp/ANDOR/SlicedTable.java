@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 public class SlicedTable {
-    private Map<String, Integer> pattern= null;
+    private Map<Integer, Integer> pattern= null;
     private List<SubTable> subtables;
     private List<SlicedTable> subSlicedTables;
 
-    public SlicedTable(Map<String, Integer> pattern) {
+    public SlicedTable(Map<Integer, Integer> pattern) {
         this.pattern = pattern;
         this.subtables = new ArrayList<SubTable>();
         this.subSlicedTables = new ArrayList<SlicedTable>();
@@ -24,7 +24,7 @@ public class SlicedTable {
 
     public void addSubSlicedTable(SlicedTable subSlicedTable) {this.subSlicedTables.add(subSlicedTable);}
 
-    public Map<String, Integer> getPattern() {return pattern;}
+    public Map<Integer, Integer> getPattern() {return pattern;}
 
     public List<SubTable> getSubTables() {return subtables;}
 

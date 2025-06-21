@@ -34,7 +34,6 @@ public class AND_test {
         Branch B = new Branch(new IntVar[]{Y}, new Branch[]{subB1,subB2});
 
         AND_DFSearch search = Factory.makeAND_Dfs(cp, () -> {
-            System.out.println("give new branches");
             return B;
         });
 

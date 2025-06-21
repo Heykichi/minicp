@@ -16,6 +16,7 @@
 package minicp.cp;
 
 import minicp.ANDOR.AND_DFSearch;
+import minicp.ANDOR.AND_DFSearch_partial_solution;
 import minicp.ANDOR.AND_MiniCP;
 import minicp.ANDOR.Branch;
 import minicp.engine.constraints.*;
@@ -224,6 +225,10 @@ public final class Factory {
 
     public static AND_DFSearch makeAND_Dfs(Solver cp, Supplier<Branch> branching) {
         return new AND_DFSearch(cp, branching);
+    }
+
+    public static AND_DFSearch_partial_solution makeAND_Dfs_PS(Solver cp, Supplier<Branch> branching) {
+        return new AND_DFSearch_partial_solution(cp, branching);
     }
 
     // REMOVE

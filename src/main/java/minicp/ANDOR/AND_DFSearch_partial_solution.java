@@ -18,27 +18,31 @@ package minicp.ANDOR;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
-import minicp.search.*;
+import minicp.search.DFSListener;
+import minicp.search.SearchStatistics;
+import minicp.search.StopSearchException;
 import minicp.state.StateManager;
 import minicp.util.Procedure;
 import minicp.util.exception.InconsistencyException;
 import minicp.util.exception.NotImplementedException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import static java.lang.Math.max;
+
 /**
  * Depth First Search Branch and Bound implementation
  */
-public class AND_DFSearch {
+public class AND_DFSearch_partial_solution {
 
     private Solver cp;
     private Supplier<Branch> branching = null;
     private StateManager sm;
     private ConstraintGraph graph;
-    private boolean full_display = false;
 
 
     private List<DFSListener> dfsListeners = new LinkedList<DFSListener>();
@@ -52,14 +56,14 @@ public class AND_DFSearch {
      *
      */
 
-    public AND_DFSearch(Solver cp, Supplier<Branch> branching) {
+    public AND_DFSearch_partial_solution(Solver cp, Supplier<Branch> branching) {
         this.cp = cp;
         this.sm = cp.getStateManager();
         this.branching = branching;
         this.graph = cp.getGraph();
     }
     // REMOVE
-    public AND_DFSearch(Solver cp) {
+    public AND_DFSearch_partial_solution(Solver cp) {
         this.cp = cp;
         this.sm = cp.getStateManager();
         this.graph = cp.getGraph();
@@ -115,13 +119,14 @@ public class AND_DFSearch {
         dfsListeners.forEach(l -> l.branch(parentId, nodeId, position, nChilds));
     }
 
-    private SearchStatistics solve( SearchStatistics statistics, Predicate<SearchStatistics> limit, boolean full_display) {
+    private SearchStatistics solve( SearchStatistics statistics, Predicate<SearchStatistics> limit) {
         currNodeIdId = 0;
         sm.withNewState(() -> {
             try {
-                this.full_display = full_display;
-                this.graph.computeStateVariables();
-                dfs(null,statistics, limit , -1, -1,false);
+                int n_Solutions = dfs(null,statistics, limit , -1, -1,0);
+                for (int i = 0; i < n_Solutions; i++) {
+                    statistics.incrSolutions();
+                }
                 statistics.setCompleted();
             } catch (StopSearchException ignored) {
             } catch (StackOverflowError e) {
@@ -131,26 +136,20 @@ public class AND_DFSearch {
         return statistics;
     }
 
-    public SearchStatistics solve(Predicate<SearchStatistics> limit, boolean full_display) {
-        SearchStatistics statistics = new SearchStatistics();
-        return solve(statistics, limit,full_display);
-    }
     public SearchStatistics solve(Predicate<SearchStatistics> limit) {
         SearchStatistics statistics = new SearchStatistics();
-        return solve(statistics, limit,false);
-    }
-
-    public SearchStatistics solve(boolean full_display) {
-        SearchStatistics statistics = new SearchStatistics();
-        return solve(statistics, stats -> false,full_display);
+        return solve(statistics, limit);
     }
 
     public SearchStatistics solve() {
         SearchStatistics statistics = new SearchStatistics();
-        return solve(statistics, stats -> false,false);
+        return solve(statistics, stats -> false);
     }
 
     private Procedure[] branching(Solver cp, IntVar[] Variable) {
+        if (Variable == null || Variable.length == 0){
+            return new Procedure[0];
+        }
         int idx = -1; // index of the first variable that is not fixed
         for (int k = 0; k < Variable.length; k++)
             if (Variable[k].size() > 1) {
@@ -169,7 +168,7 @@ public class AND_DFSearch {
     }
 
     // TODO CHECK NOTIFYBRANCH => CALCULE NODE/CHOICE + LIMITE
-    private List<SlicedTable> dfs(Branch B, SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position, boolean A) {
+    private int dfs(Branch B, SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position, int AndLevel) {
 
         if (limit.test(statistics))
             throw new StopSearchException();
@@ -178,46 +177,45 @@ public class AND_DFSearch {
         }
         // TODO ADD CHECK IF (A) STATE
         Branch branch = (B != null ) ? B :branching.get();
+        if (branch == null) {
+            //System.out.println("======  -1 ============");
+            return -1;
+        }
         // TODO GESTION SOLUTION
-        List<SlicedTable> Solutions;
+        int n_Solutions = 0;
 
         if (branch.getVariables() == null && branch.getBranches() != null){
-            Solutions = new ArrayList<SlicedTable>();
-            Solutions.add(processAndBranch(branch, statistics, limit, parentId, position, A));
+//            System.out.println("AND");
+            n_Solutions = (processAndBranch(branch, statistics, limit, parentId, position, AndLevel));
 
         } else if (branch.getVariables() != null) {
-            Solutions = processOrBranch(branch, statistics, limit, parentId, position, A);
+//            System.out.println("OR");
+            n_Solutions = processOrBranch(branch, statistics, limit, parentId, position, AndLevel);
         } else {
             throw new IllegalArgumentException("No branch available");
         }
-        if (A) return Solutions;
-
-        return null;
+        return n_Solutions;
     }
-    // TODO SPLIT + GESTION SOLUTION
-    private SlicedTable processAndBranch(Branch branch, SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position, boolean A){
+    // TODO SPLIT + GESTION SOLUTION => oui d'un coté et non de l'autre => check
+    private int processAndBranch(Branch branch, SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position, int AndLevel){
         final int nodeId = currNodeIdId++;
-        System.out.println("AND branch");
+        System.out.println("AND branch of depth "+AndLevel+" =================================================");
         notifySolution(parentId,nodeId, position);
         notifyBranch(parentId,nodeId, position, branch.getBranches().length);
         int pos = 0;
         // TODO compute pattern
-        List<SlicedTable> liste = new ArrayList<>();
+        final int[] n_Solutions = {1};
         int a = 0;
         for (Branch b : branch.getBranches()) {
-            System.out.println("    branch n° " + a);
+            System.out.println("Depth "+ AndLevel +", subbranch n° " + (a+1) + " \t------------------");
             a++;
             final int p = pos;
             sm.withNewState(() -> {
                 try {
-                    statistics.incrNodes();
-                    List<SlicedTable> L = processOrBranch(b,statistics, limit, nodeId, p, true);
-                    // ajout de sliced ou sub tables ?
-                    if (L != null){
-                        liste.addAll(L);
-                    }
-
+                    //statistics.incrNodes();
+                    n_Solutions[0] *= processOrBranch(b,statistics, limit, nodeId, p, AndLevel+1);
                 } catch (InconsistencyException e) {
+                    // TODO REMOVE ?
                     currNodeIdId++;
                     statistics.incrFailures();
                     notifyFailure(parentId,nodeId, p);
@@ -225,77 +223,67 @@ public class AND_DFSearch {
             });
             pos += 1;
         }
-
-        if (A){
-            //fusion des liste
-            SlicedTable End = new SlicedTable();
-            End.getSubSlicedTables().addAll(liste);
-            return End;
-        } else {
-
-            int size = 1;
-            for (SlicedTable l : liste) {
-                size *= l.getSubSlicedTables().size();
-            }
-//                System.out.println("nombre solution :" + size);
-//                for (int k = 0; k < size; k++) {
-//                    statistics.incrSolutions();
-//                    notifySolution(parentId,nodeId, position);
-//                }
+        if (branch.getRebranching()) {
+            System.out.println("Depth "+ AndLevel +", subbranch n° " + (a+1) + " \t------------------");
+            final int p = pos;
+            sm.withNewState(() -> {
+                try {
+                    //statistics.incrNodes();
+                    int next = dfs(null,statistics, limit , nodeId, p,AndLevel+1);
+                    if (next != -1) {
+                        n_Solutions[0] *= next;
+                    }
+                } catch (InconsistencyException e) {
+                    // TODO REMOVE ?
+                    currNodeIdId++;
+                    statistics.incrFailures();
+                    notifyFailure(parentId,nodeId, p);
+                }
+            });
         }
-        return null;
+        return n_Solutions[0];
     }
 
-    private List<SlicedTable> processOrBranch(Branch branch, SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position, boolean A){
+    private int processOrBranch(Branch branch, SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position, int AndLevel){
         final int nodeId = currNodeIdId++;
 
-        Procedure[] branches = branching(this.cp, branch.getVariables());
-        notifyBranch(parentId,nodeId, position, branch.getVariables().length);
+        Procedure[] branches = new Procedure[0];
+        if (branch.getVariables() != null){
+            branches = branching(this.cp, branch.getVariables());
+            notifyBranch(parentId,nodeId, position, branch.getVariables().length);
+            //System.out.println(branches.length);
+        }
         int pos = 0;
         if (branches.length == 0) {
             // TODO CHECK SUITE
             // SOLUTION
             if (branch.getBranches() == null){
-                if (A){
-                    statistics.incrSolutions();
-                    notifySolution(parentId,nodeId, position);
+                if (branch.getRebranching()){
+                    final int p = pos;
+                    int next = dfs(null,statistics, limit , nodeId, p,AndLevel);
 
-                    List<SlicedTable> end = new ArrayList<SlicedTable>();
-                    SlicedTable Solution = new SlicedTable();
-
-                    // TODO remplir solution
-
-                    end.add(Solution);
-                    return end;
-                } else {
-                    statistics.incrSolutions();
-                    notifySolution(parentId,nodeId, position);
+                    if (next != -1) {
+                        return next;
+                    }
                 }
-
+                notifySolution(parentId,nodeId, position);
+                return 1;
             } else {
                 // TODO START SUB BRANCH + GET SOLUTION
                 final int p = pos;
-                branch.setVariables(null);
-                SlicedTable Solution = processAndBranch(branch, statistics, limit, nodeId, p, A);
-                List<SlicedTable> end = new ArrayList<SlicedTable>();
-                end.add(Solution);
-                if (A){
-                    return end;
-                }
+                return processAndBranch(branch, statistics, limit, nodeId, p, AndLevel);
+
             }
         } else {
             // TODO GESTION SOLUTION
-            List<SlicedTable> end = new ArrayList<SlicedTable>();
+            final int[] n_Solutions = {0};
             for (Procedure b : branches) {
                 final int p = pos;
                 sm.withNewState(() -> {
                     try {
                         statistics.incrNodes();
                         b.call();
-                        List<SlicedTable> solutions = processOrBranch(branch,statistics, limit, nodeId, p, A);
-                        if (A && solutions != null){
-                            end.addAll(solutions);
-                        }
+                        n_Solutions[0] += processOrBranch(branch,statistics, limit, nodeId, p, AndLevel);
 
                     } catch (InconsistencyException e) {
                         currNodeIdId++;
@@ -305,8 +293,7 @@ public class AND_DFSearch {
                 });
                 pos += 1;
             }
-            return end;
+            return n_Solutions[0];
         }
-        return null;
     }
 }

@@ -53,10 +53,13 @@ public class Test {
             final int a = i;
             sm.withNewState(() -> {
                 ArrayList<IntVar> Li = new ArrayList<>(s.getLastElement());
-
                 Li.add(Factory.makeIntVar(cp,a));
+                sm.withNewState(() -> {
+                            s.getLastElement().add(Factory.makeIntVar(cp,a+1));
+                        });
                 //Li.remove(Y);
-                s.push(Li);
+
+                //s.getLastElement().add(Factory.makeIntVar(cp,a+1));
                 System.out.println(s.getLastElement());
             });
         }
