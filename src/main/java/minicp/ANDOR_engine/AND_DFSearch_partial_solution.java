@@ -13,7 +13,7 @@
  * Copyright (c)  2018. by Laurent Michel, Pierre Schaus, Pascal Van Hentenryck
  */
 
-package minicp.ANDOR;
+package minicp.ANDOR_engine;
 
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
@@ -26,9 +26,9 @@ import minicp.util.Procedure;
 import minicp.util.exception.InconsistencyException;
 import minicp.util.exception.NotImplementedException;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -172,19 +172,26 @@ public class AND_DFSearch_partial_solution {
 
         if (limit.test(statistics))
             throw new StopSearchException();
-        if (this.branching == null && B == null){
+        if (this.branching == null & B == null){
             throw new IllegalArgumentException("No branching instruction");
         }
-        // TODO ADD CHECK IF (A) STATE
         Branch branch = (B != null ) ? B :branching.get();
         if (branch == null) {
-            //System.out.println("======  -1 ============");
             return -1;
         }
+        // check multiple rebranching (only 1 depth)
+        int count = branch.getRebranching() ? 1 : 0;
+        if (branch.getBranches() != null) {
+            for (Branch sub : branch.getBranches()) {
+                if (sub.getRebranching()) count ++; // early exit
+            }
+        }
+        if (count > 1) {throw new IllegalArgumentException("Multiple rebranching not supported");}
+
         // TODO GESTION SOLUTION
         int n_Solutions = 0;
 
-        if (branch.getVariables() == null && branch.getBranches() != null){
+        if (branch.getVariables() == null & branch.getBranches() != null){
 //            System.out.println("AND");
             n_Solutions = (processAndBranch(branch, statistics, limit, parentId, position, AndLevel));
 
@@ -206,25 +213,28 @@ public class AND_DFSearch_partial_solution {
         // TODO compute pattern
         final int[] n_Solutions = {1};
         int a = 0;
+        AtomicReference<Boolean> breaking = new AtomicReference<>(false);
         for (Branch b : branch.getBranches()) {
-            System.out.println("Depth "+ AndLevel +", subbranch n° " + (a+1) + " \t------------------");
+            System.out.println("Depth "+ AndLevel +", subbranch n° " + (a+1) + " \t----------------------");
             a++;
             final int p = pos;
             sm.withNewState(() -> {
                 try {
                     //statistics.incrNodes();
-                    n_Solutions[0] *= processOrBranch(b,statistics, limit, nodeId, p, AndLevel+1);
+                    int solution = processOrBranch(b,statistics, limit, nodeId, p, AndLevel+1);
+                    if (solution == 0) breaking.set(true);
+                    n_Solutions[0] *= solution;
                 } catch (InconsistencyException e) {
-                    // TODO REMOVE ?
                     currNodeIdId++;
                     statistics.incrFailures();
                     notifyFailure(parentId,nodeId, p);
                 }
             });
+            if (breaking.get()) break;
             pos += 1;
         }
-        if (branch.getRebranching()) {
-            System.out.println("Depth "+ AndLevel +", subbranch n° " + (a+1) + " \t------------------");
+        if (branch.getRebranching() & !breaking.get() & n_Solutions[0] > 0) {
+            System.out.println("Depth "+ AndLevel +", subbranch n° " + (a+1) + " test rebranching\t------");
             final int p = pos;
             sm.withNewState(() -> {
                 try {
@@ -234,7 +244,6 @@ public class AND_DFSearch_partial_solution {
                         n_Solutions[0] *= next;
                     }
                 } catch (InconsistencyException e) {
-                    // TODO REMOVE ?
                     currNodeIdId++;
                     statistics.incrFailures();
                     notifyFailure(parentId,nodeId, p);

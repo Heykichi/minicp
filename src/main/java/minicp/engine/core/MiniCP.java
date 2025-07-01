@@ -15,11 +15,10 @@
 
 package minicp.engine.core;
 
-import minicp.ANDOR.ConstraintGraph;
+import minicp.ANDOR_engine.ConstraintGraph;
 import minicp.cp.Factory;
 import minicp.search.Objective;
 import minicp.state.StateManager;
-import minicp.state.StateStack;
 import minicp.util.exception.InconsistencyException;
 import minicp.util.Procedure;
 

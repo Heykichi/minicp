@@ -1,4 +1,4 @@
-package minicp.ANDOR;
+package minicp.ANDOR_engine;
 
 import java.util.ArrayList;
 import java.util.List;

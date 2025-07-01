@@ -1,4 +1,4 @@
-package minicp.ANDOR;
+package minicp.ANDOR_engine;
 
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
@@ -23,6 +23,7 @@ public class ConstraintGraph {
         this.cp = cp;
         this.adjacencyList = new HashMap<>();
         this.stateVars = new StateStack<Set<IntVar>>(cp.getStateManager());
+        this.stateVars.push(new HashSet<>());
     }
 
     /**
@@ -33,14 +34,19 @@ public class ConstraintGraph {
      */
     public List<IntVar> getUnfixedNeighbors (IntVar key){
         return adjacencyList.get(key).stream()
-                .filter(var -> !var.isFixed())
+                .filter(var -> !var.isFixed() & !this.stateVars.getLastElement().contains(var))
                 .collect(Collectors.toList());
     }
 
     public ArrayList<IntVar> getVariables() {
         return adjacencyList.keySet().stream()
-                .filter(var -> !var.isFixed())
+                .filter(var -> !var.isFixed() &  !this.stateVars.getLastElement().contains(var))
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public void newState(){
+        Set<IntVar> newStateValue = new HashSet<>(this.stateVars.getLastElement());
+        this.stateVars.push(newStateValue);
     }
 
     public Set<IntVar> getStateVariables(){return this.stateVars.getLastElement();}
@@ -104,17 +110,6 @@ public class ConstraintGraph {
         this.stateVars.push(new HashSet<IntVar>(getVariables()));
     }
 
-    public void computeStateVariables(IntVar variable){
-        Set<IntVar> newStateVars = this.stateVars.getLastElement();
-        newStateVars.add(variable);
-        this.stateVars.push((Set<IntVar>)newStateVars);
-    }
-
-    public void computeStateVariables(IntVar[] variables){
-        Set<IntVar> newStateVars = this.stateVars.getLastElement();
-        newStateVars.addAll(Arrays.asList(variables));
-        this.stateVars.push(newStateVars);
-    }
 
     /**
      * Finds all independent subgraphs in the constraint graph.
@@ -126,7 +121,7 @@ public class ConstraintGraph {
         Set<IntVar> visited = new HashSet<>();
 
         for (IntVar node : adjacencyList.keySet()) {
-            if (!visited.contains(node) && !node.isFixed()) {
+            if (!visited.contains(node) & !node.isFixed() & !this.stateVars.getLastElement().contains(node)) {
                 Set<IntVar> subgraph = new HashSet<>();
                 dfs(node, visited, subgraph);
                 subgraphs.add(subgraph);
@@ -164,7 +159,7 @@ public class ConstraintGraph {
      * to their hash code representation.
      * The formatted string representation of all subgraphs is then printed to the console.
      */
-    public void PrintSubgraph(){
+    public void printSubgraph(){
         List<Set<IntVar>> subgraphs = findIndependentSubgraphs();
         System.out.println(
                 subgraphs.stream()
@@ -175,18 +170,12 @@ public class ConstraintGraph {
         );
     }
 
-    /**
-     * Removes the specified node and its associated edges from the constraint graph.
-     * This operation removes the node from the adjacency list and
-     * also removes it from the neighbor sets of other nodes.
-     *
-     * @param nodeToRemove the variable representing the node to be removed from the graph
-     */
-    public void RemoveNode(IntVar nodeToRemove) {
-        adjacencyList.remove(nodeToRemove);
-        for (Set<IntVar> neighbors : adjacencyList.values()) {
-            neighbors.remove(nodeToRemove);
-        }
+    public void removeNode(IntVar nodeToRemove) {
+        this.stateVars.getLastElement().add(nodeToRemove);
+    }
+
+    public void removeNode(IntVar[] nodeToRemove) {
+        this.stateVars.getLastElement().addAll(Arrays.asList(nodeToRemove));
     }
 
     @Override

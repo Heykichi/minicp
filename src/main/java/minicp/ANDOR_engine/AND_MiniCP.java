@@ -13,7 +13,7 @@
  * Copyright (c)  2018. by Laurent Michel, Pierre Schaus, Pascal Van Hentenryck
  */
 
-package minicp.ANDOR;
+package minicp.ANDOR_engine;
 
 import minicp.cp.Factory;
 import minicp.engine.core.*;
@@ -123,5 +123,7 @@ public class AND_MiniCP implements Solver {
     }
 
     @Override
-    public ConstraintGraph getGraph() {return this.graph;}
+    public ConstraintGraph getGraph() {
+        this.graph.newState();
+        return this.graph;}
 }

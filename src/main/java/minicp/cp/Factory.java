@@ -15,10 +15,10 @@
 
 package minicp.cp;
 
-import minicp.ANDOR.AND_DFSearch;
-import minicp.ANDOR.AND_DFSearch_partial_solution;
-import minicp.ANDOR.AND_MiniCP;
-import minicp.ANDOR.Branch;
+import minicp.ANDOR_engine.AND_DFSearch;
+import minicp.ANDOR_engine.AND_DFSearch_partial_solution;
+import minicp.ANDOR_engine.AND_MiniCP;
+import minicp.ANDOR_engine.Branch;
 import minicp.engine.constraints.*;
 import minicp.engine.core.*;
 import minicp.search.DFSearch;
@@ -31,7 +31,6 @@ import minicp.util.exception.IntOverFlowException;
 
 import java.util.Arrays;
 import java.util.Set;
-import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;

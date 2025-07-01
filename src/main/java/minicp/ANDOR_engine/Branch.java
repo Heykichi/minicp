@@ -1,4 +1,4 @@
-package minicp.ANDOR;
+package minicp.ANDOR_engine;
 
 import minicp.engine.core.IntVar;
 

@@ -13,7 +13,7 @@
  * Copyright (c)  2018. by Laurent Michel, Pierre Schaus, Pascal Van Hentenryck
  */
 
-package minicp.ANDOR;
+package minicp.ANDOR_engine;
 
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
@@ -210,7 +210,7 @@ public class AND_DFSearch {
             final int p = pos;
             sm.withNewState(() -> {
                 try {
-                    statistics.incrNodes();
+                    //statistics.incrNodes();
                     List<SlicedTable> L = processOrBranch(b,statistics, limit, nodeId, p, true);
                     // ajout de sliced ou sub tables ?
                     if (L != null){

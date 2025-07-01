@@ -1,16 +1,11 @@
-package minicp.ANDOR_test;
+package minicp.ANDOR_example;
 
-import minicp.ANDOR.AND_DFSearch;
-import minicp.ANDOR.Branch;
-import minicp.ANDOR.Branch;
+import minicp.ANDOR_engine.AND_DFSearch;
+import minicp.ANDOR_engine.Branch;
 import minicp.cp.Factory;
-import minicp.engine.core.Constraint;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.search.SearchStatistics;
-import minicp.state.StateStack;
-import minicp.util.Procedure;
-
 
 
 public class AND_test {

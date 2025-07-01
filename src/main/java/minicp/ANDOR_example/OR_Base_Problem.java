@@ -1,4 +1,4 @@
-package minicp.ANDOR_test;
+package minicp.ANDOR_example;
 
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
@@ -7,12 +7,14 @@ import minicp.search.DFSearch;
 import minicp.search.SearchStatistics;
 import minicp.util.Procedure;
 
-public class Base_Problem {
+import static minicp.ANDOR_example.AND_PS_example1.printSum;
+
+public class OR_Base_Problem {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeSolver(false);
         
-        int index = 2;
+        int index = 4;
         IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
         IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
 
@@ -49,11 +51,14 @@ public class Base_Problem {
             }
         });
 
-        search.onSolution(() ->
-                        System.out.println( "1) " + X[0] +" + " +  X[1] + " = " + Y + "\n2) " +  Z[0] +" + " +  Z[1] + " = " + Y +"\n")
-                //System.out.println( X[0] +" + " +  X[1] + " + " +  X[2] + " = " + Y + "\n" +  Z[0] +" + " +  Z[1] + " + " +  Z[2] + " = " + Y +"\n")
-        );
-        
+        search.onSolution(() -> {
+            System.out.print("1) ");
+            printSum(X,Y);
+
+            System.out.print("2) ");
+            printSum(Z,Y);
+            System.out.println();
+        });
         
         SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 1000);
 

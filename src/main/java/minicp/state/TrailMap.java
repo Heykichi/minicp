@@ -27,18 +27,34 @@ import java.util.Map;
  * @see StateManager#makeStateMap()
  */
 public class TrailMap<K, V> implements StateMap<K, V> {
-
-    
+    private Trailer trail;
+    private Map<K, V> map = new IdentityHashMap<>();
 
     protected TrailMap(Trailer trail) {
-         throw new NotImplementedException("TrailMap");
+        this.trail = trail;
     }
 
     public void put(K k, V v) {
-         throw new NotImplementedException("TrailMap");
+        if (!map.containsKey(k)) {
+            trail.pushState(new StateEntry() {
+                @Override
+                public void restore() {
+                    map.remove(k);
+                }
+            });
+        } else {
+            V vOld = map.get(k);
+            trail.pushState(new StateEntry() {
+                @Override
+                public void restore() {
+                    map.put(k, vOld);
+                }
+            });
+        }
+        map.put(k, v);
     }
 
     public V get(K k) {
-         throw new NotImplementedException("TrailMap");
+        return map.get(k);
     }
 }
