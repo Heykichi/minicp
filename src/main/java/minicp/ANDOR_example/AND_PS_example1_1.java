@@ -13,14 +13,13 @@ import java.util.List;
 import java.util.Set;
 
 
-public class AND_PS_example1 {
+public class AND_PS_example1_1 {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeANDSolver(false);
         int index = 4;
         IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
         IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
-
         IntVar Y = Factory.makeIntVar(cp,4);
 
         cp.post(Factory.sum(X, Y));
@@ -82,12 +81,10 @@ public class AND_PS_example1 {
             System.out.println();
         });
 
-
         SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 1000);
         System.out.println("=======================================================================");
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);
-
     }
 
     public static void printSum(IntVar[] vars, IntVar sum){
@@ -97,7 +94,5 @@ public class AND_PS_example1 {
         }
         expression.append(vars[vars.length-1]);
         System.out.println(expression.toString() + " = " + sum);
-
-
     }
 }

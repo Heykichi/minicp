@@ -7,7 +7,7 @@ import minicp.search.DFSearch;
 import minicp.search.SearchStatistics;
 import minicp.util.Procedure;
 
-import static minicp.ANDOR_example.AND_PS_example1.printSum;
+import static minicp.ANDOR_example.AND_PS_example1_1.printSum;
 
 public class OR_Base_Problem {
     public static void main(String[] args) {
@@ -61,8 +61,6 @@ public class OR_Base_Problem {
         });
         
         SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 1000);
-
-        //search.showTree("NQUEENS");
 
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);

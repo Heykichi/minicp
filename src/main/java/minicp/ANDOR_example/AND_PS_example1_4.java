@@ -8,21 +8,19 @@ import minicp.engine.core.Solver;
 import minicp.search.SearchStatistics;
 
 
-public class AND_test {
+public class AND_PS_example1_4 {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeANDSolver(false);
-        int index = 3;
+        int index = 2;
         IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
         IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
-
         IntVar Y = Factory.makeIntVar(cp,5);
 
-        Y.fix(4);
+        //Y.fix(2);
 
         cp.post(Factory.sum(X, Y));
         cp.post(Factory.sum(Z, Y));
-
 
         Branch subB1 = new Branch(X);
         Branch subB2 = new Branch(Z);
@@ -32,20 +30,13 @@ public class AND_test {
             return B;
         });
 
-
-
-        //AND_DFSearch search = Factory.makeAND_Dfs(cp);
-
-
         search.onSolution(() ->
-                System.out.println( X[0] +" + " +  X[1] + " + " +  X[2] + " = " + Y + "\n" +  Z[0] +" + " +  Z[1] + " + " +  Z[2] + " = " + Y +"\n")
+                System.out.println( "1) " + X[0] +" + " +  X[1] + " = " + Y + "\n2) " +  Z[0] +" + " +  Z[1] + " = " + Y +"\n")
         );
-
-        //
 
 
         SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 1000);
-
+	    System.out.println("=======================================================================");
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);
     }
