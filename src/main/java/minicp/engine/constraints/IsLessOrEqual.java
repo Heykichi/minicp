@@ -77,4 +77,9 @@ public class IsLessOrEqual extends AbstractConstraint { // b <=> x <= v
             });
         }
     }
+
+    @Override
+    public IntVar[] getVars() {
+        return new IntVar[]{this.x,this.b};
+    }
 }

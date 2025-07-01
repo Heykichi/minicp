@@ -102,6 +102,6 @@ public class Absolute extends AbstractConstraint {
 
     @Override
     public IntVar[] getVars() {
-        return new IntVar[]{x, y};
+        return new IntVar[]{this.x, this.y};
     }
 }

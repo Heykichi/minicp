@@ -20,6 +20,9 @@ import minicp.engine.core.AbstractConstraint;
 import minicp.engine.core.IntVar;
 import minicp.util.exception.NotImplementedException;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 /**
  * Maximum Constraint
  */
@@ -86,5 +89,10 @@ public class Maximum extends AbstractConstraint {
         if (n == 1){
             i.removeBelow(y.min());
         }
+    }
+    @Override
+    public IntVar[] getVars() {
+        return Stream.concat(Arrays.stream(x), Stream.of(y))
+                .toArray(IntVar[]::new);
     }
 }

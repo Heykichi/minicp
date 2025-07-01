@@ -73,6 +73,6 @@ public class IsEqual extends AbstractConstraint { // b <=> x == v
 
     @Override
     public IntVar[] getVars() {
-        return new IntVar[]{x};
+        return new IntVar[]{this.x,this.b};
     }
 }

@@ -46,4 +46,7 @@ public class LessOrEqual extends AbstractConstraint { // x <= y
         if (x.max() <= y.min())
             setActive(false);
     }
+
+    @Override
+    public IntVar[] getVars() {return new IntVar[]{this.x,this.y};}
 }

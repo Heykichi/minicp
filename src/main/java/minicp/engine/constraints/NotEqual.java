@@ -75,8 +75,6 @@ public class NotEqual extends AbstractConstraint {
         setActive(false);
     }
     @Override
-    public IntVar[] getVars() {
-        return new IntVar[]{x , y};
-    }
+    public IntVar[] getVars() {return new IntVar[]{this.x,this.y};}
 
 }

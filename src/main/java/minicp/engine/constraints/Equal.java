@@ -46,7 +46,7 @@ public class Equal extends AbstractConstraint {
 
     @Override
     public IntVar[] getVars() {
-        return new IntVar[]{x, y};
+        return new IntVar[]{this.x, this.y};
     }
 
     // dom consistent filtering in the direction from -> to
