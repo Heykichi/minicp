@@ -1,6 +1,5 @@
 package minicp.ANDOR_example;
 
-import minicp.ANDOR_engine.AND_DFSearch;
 import minicp.ANDOR_engine.AND_DFSearch_partial_solution;
 import minicp.ANDOR_engine.Branch;
 import minicp.cp.Factory;
@@ -8,27 +7,41 @@ import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.search.SearchStatistics;
 
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class AND_PS_example1_4 {
+
+public class AND_PS_example3 {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeANDSolver(false);
         int index = 2;
         IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
         IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
-        IntVar Y = Factory.makeIntVar(cp,5);
 
-        //Y.fix(2);
+        IntVar Y = Factory.makeIntVar(cp,4);
+
+        //Y.fix(0);
 
         cp.post(Factory.sum(X, Y));
         cp.post(Factory.sum(Z, Y));
 
+
+
         Branch subB1 = new Branch(X);
-        Branch subB2 = new Branch(Z);
+        Branch subB2 = new Branch(new IntVar[]{Z[0]}, true);
+        Branch subB3 = new Branch(new IntVar[]{Z[1]});
         Branch B = new Branch(new IntVar[]{Y}, new Branch[]{subB1,subB2});
 
+        AtomicInteger a = new AtomicInteger(1);
+
         AND_DFSearch_partial_solution search = Factory.makeAND_Dfs_PS(cp, () -> {
-            return B;
+            if (!Y.isFixed()) {
+                return B;
+            }
+            if (Y.isFixed() && !Z[1].isFixed()) {
+                return subB3;
+            }
+            return null;
         });
 
         search.onSolution(() ->
@@ -36,9 +49,11 @@ public class AND_PS_example1_4 {
         );
 
 
+
         SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 1000);
-	    System.out.println("=======================================================================");
+        System.out.println("=======================================================================");
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);
+
     }
 }

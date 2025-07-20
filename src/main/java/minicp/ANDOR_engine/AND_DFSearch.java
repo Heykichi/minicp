@@ -151,6 +151,9 @@ public class AND_DFSearch {
     }
 
     private Procedure[] branching(Solver cp, IntVar[] Variable) {
+        if (Variable == null || Variable.length == 0){
+            return new Procedure[0];
+        }
         int idx = -1; // index of the first variable that is not fixed
         for (int k = 0; k < Variable.length; k++)
             if (Variable[k].size() > 1) {
@@ -248,6 +251,8 @@ public class AND_DFSearch {
 
     private List<SlicedTable> processOrBranch(Branch branch, SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position, boolean A){
         final int nodeId = currNodeIdId++;
+
+        System.out.println(branch.getVariables());
 
         Procedure[] branches = branching(this.cp, branch.getVariables());
         notifyBranch(parentId,nodeId, position, branch.getVariables().length);
