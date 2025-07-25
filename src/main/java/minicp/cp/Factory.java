@@ -15,7 +15,6 @@
 
 package minicp.cp;
 
-import minicp.ANDOR_engine.AND_DFSearch;
 import minicp.ANDOR_engine.AND_DFSearch_partial_solution;
 import minicp.ANDOR_engine.AND_MiniCP;
 import minicp.ANDOR_engine.Branch;
@@ -222,17 +221,8 @@ public final class Factory {
         return new DFSearch(cp.getStateManager(), branching);
     }
 
-    public static AND_DFSearch makeAND_Dfs(Solver cp, Supplier<Branch> branching) {
-        return new AND_DFSearch(cp, branching);
-    }
-
     public static AND_DFSearch_partial_solution makeAND_Dfs_PS(Solver cp, Supplier<Branch> branching) {
         return new AND_DFSearch_partial_solution(cp, branching);
-    }
-
-    // REMOVE
-    public static AND_DFSearch makeAND_Dfs(Solver cp) {
-        return new AND_DFSearch(cp);
     }
 
     // -------------- constraints -----------------------

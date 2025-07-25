@@ -1,44 +1,54 @@
-package minicp.ANDOR_example;
+package minicp.ANDOR_use_example;
 
-import minicp.ANDOR_engine.AND_DFSearch;
 import minicp.ANDOR_engine.AND_DFSearch_partial_solution;
 import minicp.ANDOR_engine.Branch;
+import minicp.ANDOR_engine.SubBranch;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.search.SearchStatistics;
 
+import static minicp.ANDOR_use_example.AND_PS_example1_1.printSum;
 
-public class AND_PS_example1_4 {
+
+public class AND_PS_example1_2 {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeANDSolver(false);
-        int index = 2;
+        int index = 4;
         IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
         IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
-        IntVar Y = Factory.makeIntVar(cp,5);
+        IntVar Y = Factory.makeIntVar(cp,4);
 
-        //Y.fix(2);
+        //Y.fix(3);
 
         cp.post(Factory.sum(X, Y));
         cp.post(Factory.sum(Z, Y));
 
-        Branch subB1 = new Branch(X);
-        Branch subB2 = new Branch(Z);
-        Branch B = new Branch(new IntVar[]{Y}, new Branch[]{subB1,subB2});
+        SubBranch subB1 = new SubBranch(X, true);
+        SubBranch subB2 = new SubBranch(Z, true);
+        Branch B = new Branch(new IntVar[]{Y}, new SubBranch[]{subB1,subB2});
 
         AND_DFSearch_partial_solution search = Factory.makeAND_Dfs_PS(cp, () -> {
-            return B;
+            if (!X[0].isFixed()) {
+                return B;
+            }
+            return null;
         });
 
-        search.onSolution(() ->
-                System.out.println( "1) " + X[0] +" + " +  X[1] + " = " + Y + "\n2) " +  Z[0] +" + " +  Z[1] + " = " + Y +"\n")
-        );
+        search.onSolution(() -> {
+            System.out.print("1) ");
+            printSum(X,Y);
 
+            System.out.print("2) ");
+            printSum(Z,Y);
+            System.out.println();
+        });
 
         SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 1000);
-	    System.out.println("=======================================================================");
+        System.out.println("=======================================================================");
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);
+
     }
 }

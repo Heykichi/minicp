@@ -1,4 +1,4 @@
-package minicp.ANDOR_example;
+package minicp.ANDOR_use_example;
 
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;

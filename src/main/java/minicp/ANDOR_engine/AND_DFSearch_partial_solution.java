@@ -28,11 +28,14 @@ import minicp.util.exception.NotImplementedException;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static java.lang.Math.max;
+import static minicp.ANDOR_engine.AND_BranchingScheme.firstOrder;
 
 /**
  * Depth First Search Branch and Bound implementation
@@ -40,13 +43,12 @@ import static java.lang.Math.max;
 public class AND_DFSearch_partial_solution {
 
     private Solver cp;
-    private Supplier<Branch> branching = null;
+    private Supplier<Branch> treeBuilding = null;
     private StateManager sm;
-    private ConstraintGraph graph;
+    private Function<IntVar[], Procedure[]> branching;
 
 
     private List<DFSListener> dfsListeners = new LinkedList<DFSListener>();
-
 
     private int currNodeIdId;
 
@@ -56,17 +58,26 @@ public class AND_DFSearch_partial_solution {
      *
      */
 
-    public AND_DFSearch_partial_solution(Solver cp, Supplier<Branch> branching) {
+    public AND_DFSearch_partial_solution(Solver cp, Supplier<Branch> treeBuilding) {
         this.cp = cp;
         this.sm = cp.getStateManager();
-        this.branching = branching;
-        this.graph = cp.getGraph();
+        this.treeBuilding = treeBuilding;
+        this.branching = firstOrder();
     }
-    // REMOVE
-    public AND_DFSearch_partial_solution(Solver cp) {
+
+    public AND_DFSearch_partial_solution(Solver cp, Supplier<Branch> treeBuilding, Function<IntVar[], Procedure[]> branching) {
         this.cp = cp;
         this.sm = cp.getStateManager();
-        this.graph = cp.getGraph();
+        this.treeBuilding = treeBuilding;
+        this.branching = branching;
+    }
+
+    public void setBranching(Function<IntVar[], Procedure[]> branching) {
+        this.branching = branching;
+    }
+
+    public void setTreeBuilding(Supplier<Branch> treeBuilding) {
+        this.treeBuilding = treeBuilding;
     }
 
     /**
@@ -123,7 +134,7 @@ public class AND_DFSearch_partial_solution {
         currNodeIdId = 0;
         sm.withNewState(() -> {
             try {
-                int n_Solutions = dfs(null,statistics, limit , -1, -1,0);
+                int n_Solutions = dfs(statistics, limit , -1, -1,0);
                 for (int i = 0; i < n_Solutions; i++) {
                     statistics.incrSolutions();
                 }
@@ -146,7 +157,7 @@ public class AND_DFSearch_partial_solution {
         return solve(statistics, stats -> false);
     }
 
-    private Procedure[] branching(Solver cp, IntVar[] Variable) {
+    private Procedure[] branching2(Solver cp, IntVar[] Variable) {
         if (Variable == null || Variable.length == 0){
             return new Procedure[0];
         }
@@ -168,119 +179,102 @@ public class AND_DFSearch_partial_solution {
     }
 
     // TODO CHECK NOTIFYBRANCH => CALCULE NODE/CHOICE + LIMITE
-    private int dfs(Branch B, SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position, int AndLevel) {
+    private int dfs(SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position, int AndLevel) {
 
         if (limit.test(statistics))
             throw new StopSearchException();
-        if (this.branching == null & B == null){
-            throw new IllegalArgumentException("No branching instruction");
-        }
-        Branch branch = (B != null ) ? B :branching.get();
+
+        Objects.requireNonNull(this.branching, "No branching instruction");
+        Objects.requireNonNull(this.treeBuilding, "No tree building instruction");
+
+        Branch branch = treeBuilding.get();
         if (branch == null) {
+            System.out.println("DFS VOID");
             return -1;
         }
-        // check multiple rebranching (only 1 depth)
-        int count = branch.getRebranching() ? 1 : 0;
-        if (branch.getBranches() != null) {
-            for (Branch sub : branch.getBranches()) {
-                if (sub.getRebranching()) count ++; // early exit
-            }
-        }
-        if (count > 1) {throw new IllegalArgumentException("Multiple rebranching not supported");}
 
         // TODO GESTION SOLUTION
         int n_Solutions = 0;
 
         if (branch.getVariables() == null & branch.getBranches() != null){
-//            System.out.println("AND");
-            n_Solutions = (processAndBranch(branch, statistics, limit, parentId, position, AndLevel));
+            System.out.println("AND");
+            n_Solutions = processAndBranch(branch, statistics, limit, parentId, position, AndLevel);
 
         } else if (branch.getVariables() != null) {
-//            System.out.println("OR");
+            System.out.println("OR");
             n_Solutions = processOrBranch(branch, statistics, limit, parentId, position, AndLevel);
         } else {
             throw new IllegalArgumentException("No branch available");
         }
         return n_Solutions;
     }
+
     // TODO SPLIT + GESTION SOLUTION => oui d'un coté et non de l'autre => check
     private int processAndBranch(Branch branch, SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position, int AndLevel){
+        if (limit.test(statistics))
+            throw new StopSearchException();
         final int nodeId = currNodeIdId++;
         System.out.println("AND branch of depth "+AndLevel+" =================================================");
         notifySolution(parentId,nodeId, position);
-        notifyBranch(parentId,nodeId, position, branch.getBranches().length);
+        //notifyBranch(parentId,nodeId, position, branch.getBranches().length);
         int pos = 0;
         // TODO compute pattern
         final int[] n_Solutions = {1};
         int a = 0;
         AtomicReference<Boolean> breaking = new AtomicReference<>(false);
-        for (Branch b : branch.getBranches()) {
+        for (SubBranch B : branch.getBranches()) {
             System.out.println("Depth "+ AndLevel +", subbranch n° " + (a+1) + " \t----------------------");
             a++;
             final int p = pos;
             sm.withNewState(() -> {
-                try {
-                    //statistics.incrNodes();
-                    int solution = processOrBranch(b,statistics, limit, nodeId, p, AndLevel+1);
-                    if (solution == 0) breaking.set(true);
-                    n_Solutions[0] *= solution;
-                } catch (InconsistencyException e) {
-                    currNodeIdId++;
-                    statistics.incrFailures();
-                    notifyFailure(parentId,nodeId, p);
+
+                //statistics.incrNodes();
+                this.cp.getGraph().newState(B.getVariables());
+                int solution = 1;
+                if (B.getToFix()) {
+                    solution = processOrBranch(new Branch(B.getVariables()), statistics, limit, parentId, position, AndLevel+1);
+                } else {
+                    solution = dfs(statistics, limit, nodeId, p, AndLevel+1);
                 }
+                if (solution == 0) breaking.set(true);
+                n_Solutions[0] *= solution;
+                // todo B change graph
             });
             if (breaking.get()) break;
             pos += 1;
-        }
-        if (branch.getRebranching() & !breaking.get() & n_Solutions[0] > 0) {
-            System.out.println("Depth "+ AndLevel +", subbranch n° " + (a+1) + " test rebranching\t------");
-            final int p = pos;
-            sm.withNewState(() -> {
-                try {
-                    //statistics.incrNodes();
-                    int next = dfs(null,statistics, limit , nodeId, p,AndLevel+1);
-                    if (next != -1) {
-                        n_Solutions[0] *= next;
-                    }
-                } catch (InconsistencyException e) {
-                    currNodeIdId++;
-                    statistics.incrFailures();
-                    notifyFailure(parentId,nodeId, p);
-                }
-            });
         }
         return n_Solutions[0];
     }
 
     private int processOrBranch(Branch branch, SearchStatistics statistics, Predicate<SearchStatistics> limit, int parentId, int position, int AndLevel){
+        if (limit.test(statistics))
+            throw new StopSearchException();
         final int nodeId = currNodeIdId++;
 
         Procedure[] branches = new Procedure[0];
         if (branch.getVariables() != null){
-            branches = branching(this.cp, branch.getVariables());
+            branches = this.branching.apply(branch.getVariables());
             notifyBranch(parentId,nodeId, position, branch.getVariables().length);
-            //System.out.println(branches.length);
         }
         int pos = 0;
         if (branches.length == 0) {
             // TODO CHECK SUITE
             // SOLUTION
-            if (branch.getBranches() == null){
-                if (branch.getRebranching()){
-                    final int p = pos;
-                    int next = dfs(null,statistics, limit , nodeId, p,AndLevel);
 
-                    if (next != -1) {
-                        return next;
-                    }
-                }
+            // check solution trouvé
+
+            System.out.println();
+
+            if (cp.getGraph().solutionFound()){
                 notifySolution(parentId,nodeId, position);
                 return 1;
+            } else if (branch.getBranches() == null ){
+                System.out.println("jklm");
+                return dfs(statistics, limit, nodeId, pos, AndLevel+1);
             } else {
                 // TODO START SUB BRANCH + GET SOLUTION
                 final int p = pos;
-                return processAndBranch(branch, statistics, limit, nodeId, p, AndLevel);
+                return processAndBranch(new Branch(branch.getBranches()), statistics, limit, nodeId, p, AndLevel);
 
             }
         } else {

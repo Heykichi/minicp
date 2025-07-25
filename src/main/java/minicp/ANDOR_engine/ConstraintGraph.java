@@ -23,7 +23,16 @@ public class ConstraintGraph {
         this.cp = cp;
         this.adjacencyList = new HashMap<>();
         this.stateVars = new StateStack<Set<IntVar>>(cp.getStateManager());
-        this.stateVars.push(new HashSet<>());
+        this.stateVars.push(adjacencyList.keySet());
+    }
+
+    public boolean solutionFound() {
+        for (IntVar var : this.stateVars.getLastElement()) {
+            if (!var.isFixed()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -34,18 +43,23 @@ public class ConstraintGraph {
      */
     public List<IntVar> getUnfixedNeighbors (IntVar key){
         return adjacencyList.get(key).stream()
-                .filter(var -> !var.isFixed() & !this.stateVars.getLastElement().contains(var))
+                .filter(var -> !var.isFixed() & this.stateVars.getLastElement().contains(var))
                 .collect(Collectors.toList());
     }
 
-    public ArrayList<IntVar> getVariables() {
-        return adjacencyList.keySet().stream()
-                .filter(var -> !var.isFixed() &  !this.stateVars.getLastElement().contains(var))
+    public ArrayList<IntVar> getUnfixedVariables() {
+        return this.stateVars.getLastElement().stream()
+                .filter(var -> !var.isFixed())
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public void newState(){
         Set<IntVar> newStateValue = new HashSet<>(this.stateVars.getLastElement());
+        this.stateVars.push(newStateValue);
+    }
+
+    public void newState(IntVar[] Variables){
+        Set<IntVar> newStateValue = new HashSet<>(Arrays.asList(Variables));
         this.stateVars.push(newStateValue);
     }
 
@@ -107,7 +121,7 @@ public class ConstraintGraph {
     }
 
     public void computeStateVariables(){
-        this.stateVars.push(new HashSet<IntVar>(getVariables()));
+        this.stateVars.push(new HashSet<IntVar>(getUnfixedVariables()));
     }
 
 
@@ -120,8 +134,8 @@ public class ConstraintGraph {
         List<Set<IntVar>> subgraphs = new ArrayList<>();
         Set<IntVar> visited = new HashSet<>();
 
-        for (IntVar node : adjacencyList.keySet()) {
-            if (!visited.contains(node) & !node.isFixed() & !this.stateVars.getLastElement().contains(node)) {
+        for (IntVar node : this.stateVars.getLastElement()) {
+            if (!visited.contains(node) & !node.isFixed() ) {
                 Set<IntVar> subgraph = new HashSet<>();
                 dfs(node, visited, subgraph);
                 subgraphs.add(subgraph);
@@ -149,8 +163,6 @@ public class ConstraintGraph {
         }
     }
 
-
-
     /**
      * Prints the independent subgraphs of the constraint graph.
      *
@@ -171,11 +183,11 @@ public class ConstraintGraph {
     }
 
     public void removeNode(IntVar nodeToRemove) {
-        this.stateVars.getLastElement().add(nodeToRemove);
+        this.stateVars.getLastElement().remove(nodeToRemove);
     }
 
     public void removeNode(IntVar[] nodeToRemove) {
-        this.stateVars.getLastElement().addAll(Arrays.asList(nodeToRemove));
+        Arrays.asList(nodeToRemove).forEach(this.stateVars.getLastElement()::remove);
     }
 
     @Override

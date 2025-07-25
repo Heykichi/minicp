@@ -5,44 +5,26 @@ import minicp.engine.core.IntVar;
 public class Branch {
 
     private IntVar[] variables = null;
-    private Branch[] branches = null;
-    private boolean rebranching = false;
+    private SubBranch[] subBranches = null;
 
-    public Branch(IntVar[] variables, Branch[] branches, boolean rebranching) {
+    public Branch(IntVar[] variables, SubBranch[] subBranches) {
         this.variables = variables;
-        this.branches = branches;
-        this.rebranching = rebranching;
+        this.subBranches = subBranches;
     }
 
-    public Branch(IntVar[] variables, Branch[] branches) {
-        this.variables = variables;
-        this.branches = branches;
-    }
-
-    public Branch(IntVar[] variables, boolean rebranching) {
-        this.variables = variables;
-        this.rebranching = rebranching;
-    }
     public Branch(IntVar[] variables) {
         this.variables = variables;
     }
 
-    public Branch(Branch[] branches, boolean rebranching) {
-        this.branches = branches;
-        this.rebranching = rebranching;
+    public Branch(SubBranch[] subBranches) {
+        this.subBranches = subBranches;
     }
 
-    public void setBranches(Branch[] branches) {this.branches = branches;}
+    public void setBranches(SubBranch[] subBranches) {this.subBranches = subBranches;}
 
     public void setVariables(IntVar[] variables) {this.variables = variables;}
 
-    public void setRebranching(boolean rebranching) {this.rebranching = rebranching;}
+    public IntVar[] getVariables() {return this.variables;}
 
-    public IntVar[] getVariables() {
-        return this.variables;
-    }
-
-    public Branch[] getBranches() {return this.branches;}
-
-    public boolean getRebranching() {return this.rebranching;}
+    public SubBranch[] getBranches() {return this.subBranches;}
 }

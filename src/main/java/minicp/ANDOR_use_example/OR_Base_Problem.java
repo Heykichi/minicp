@@ -1,4 +1,4 @@
-package minicp.ANDOR_example;
+package minicp.ANDOR_use_example;
 
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
@@ -7,7 +7,7 @@ import minicp.search.DFSearch;
 import minicp.search.SearchStatistics;
 import minicp.util.Procedure;
 
-import static minicp.ANDOR_example.AND_PS_example1_1.printSum;
+import static minicp.ANDOR_use_example.AND_PS_example1_1.printSum;
 
 public class OR_Base_Problem {
     public static void main(String[] args) {
