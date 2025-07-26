@@ -15,6 +15,9 @@
 
 package minicp.search;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Statistics collected during the
  * execution of
@@ -27,6 +30,7 @@ public class SearchStatistics {
     private int nNodes = 0;
     private int nSolutions = 0;
     private boolean completed = false;
+    private List<Map<Integer, Integer>> solutions = null;
 
     public String toString() {
         return "\n\t#choice: " + nNodes
@@ -45,6 +49,10 @@ public class SearchStatistics {
 
     public void incrSolutions() {
         nSolutions++;
+    }
+
+    public void incrSolutions(int n) {
+        nSolutions += n;
     }
 
     public void setCompleted() {
@@ -66,5 +74,12 @@ public class SearchStatistics {
     public boolean isCompleted() {
         return completed;
     }
+
+    public void setSolutions(List<Map<Integer, Integer>> solutions) {
+        this.solutions = solutions;
+    }
+
+    public List<Map<Integer, Integer>> getSolutions() {
+        return solutions;}
 
 }

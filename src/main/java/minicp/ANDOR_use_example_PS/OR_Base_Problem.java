@@ -1,4 +1,4 @@
-package minicp.ANDOR_use_example;
+package minicp.ANDOR_use_example_PS;
 
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
@@ -7,19 +7,23 @@ import minicp.search.DFSearch;
 import minicp.search.SearchStatistics;
 import minicp.util.Procedure;
 
-public class OR_Base_Problem2 {
+import static minicp.ANDOR_use_example.AND_example1_1.printSum;
+
+public class OR_Base_Problem {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeSolver(false);
+        
+        int index = 4;
+        IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
+        IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
 
-        int index = 3;
-        IntVar[] X = Factory.makeIntVarArray(cp, index, index);
-        IntVar[] Z = Factory.makeIntVarArray(cp, index, index);
+        IntVar Y = Factory.makeIntVar(cp,4);
 
-        cp.post(Factory.allDifferent(X));
-        cp.post(Factory.allDifferent(Z));
+        //Y.fix(3);
 
-        cp.post(Factory.equal(X[0], Z[0]));
+        cp.post(Factory.sum(X, Y));
+        cp.post(Factory.sum(Z, Y));
 
         DFSearch search = Factory.makeDfs(cp, () -> {
             int idx = -1; // index of the first variable that is not fixed
@@ -48,12 +52,15 @@ public class OR_Base_Problem2 {
         });
 
         search.onSolution(() -> {
-            System.out.println(" "+ X[0] + " - " + X[1] + " - " + X[2] );
-            System.out.println("  | ");
-            System.out.println(" "+ Z[0] + " - " + Z[1] + " - " + Z[2] + "\n");
+            System.out.print("1) ");
+            printSum(X,Y);
+
+            System.out.print("2) ");
+            printSum(Z,Y);
+            System.out.println();
         });
         
-        SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 1000);
+        SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 2000);
 
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);

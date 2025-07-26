@@ -1,24 +1,23 @@
-package minicp.ANDOR_use_example;
+package minicp.ANDOR_use_example_PS;
 
 import minicp.ANDOR_engine.AND_DFSearch_partial_solution;
-import minicp.ANDOR_engine.Branch;
-import minicp.ANDOR_engine.SubBranch;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.search.SearchStatistics;
 
-import static minicp.ANDOR_use_example.AND_PS_example1_1.printSum;
+import static minicp.ANDOR_engine.AND_BranchingScheme.BasicTreeBuilding;
+import static minicp.ANDOR_engine.AND_BranchingScheme.firstFail;
 
 
-public class AND_PS_example1_0 {
+public class AND_PS_example1_1 {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeANDSolver(false);
         int index = 4;
         IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
         IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
-        IntVar Y = Factory.makeIntVar(cp,4);
+        IntVar Y = Factory.makeIntVar(cp, 4);
 
         cp.post(Factory.sum(X, Y));
         cp.post(Factory.sum(Z, Y));
@@ -32,35 +31,31 @@ public class AND_PS_example1_0 {
         // the branching must return a branch.
         // In the case of AND branches, variables assigned to subbranches must be removed (graph.removeNode(Intvar v) or graph.removeNode(Intvar[] v)).
         //
-        SubBranch subB1 = new SubBranch(X, true);
-        SubBranch subB2 = new SubBranch(Z, true);
+        AND_DFSearch_partial_solution search = Factory.makeAND_Dfs_PS(cp, BasicTreeBuilding(cp));
 
-        IntVar[] combined = new IntVar[9];
-        combined[0] = Y;
-        System.arraycopy(X, 0, combined, 1, X.length);
-        System.arraycopy(Z, 0, combined, 5, Z.length);
-
-        Branch B = new Branch(combined);
-
-        AND_DFSearch_partial_solution search = Factory.makeAND_Dfs_PS(cp, () -> {
-            if (!Y.isFixed()) {
-                return B;
-            }
-            return null;
-        });
+        search.setBranching(firstFail());
 
         search.onSolution(() -> {
             System.out.print("1) ");
-            printSum(X,Y);
+            printSum(X, Y);
 
             System.out.print("2) ");
-            printSum(Z,Y);
+            printSum(Z, Y);
             System.out.println();
         });
 
-        SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 1);
+        SearchStatistics stats = search.solve(2000);
         System.out.println("=======================================================================");
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);
+    }
+
+    public static void printSum(IntVar[] vars, IntVar sum){
+        StringBuilder expression = new StringBuilder();
+        for (int i = 0; i < vars.length -1; i += 1) {
+            expression.append(vars[i]).append(" + ");
+        }
+        expression.append(vars[vars.length-1]);
+        System.out.println(expression.toString() + " = " + sum);
     }
 }

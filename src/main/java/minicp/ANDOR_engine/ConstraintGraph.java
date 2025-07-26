@@ -182,13 +182,13 @@ public class ConstraintGraph {
         );
     }
 
-    public void removeNode(IntVar nodeToRemove) {
-        this.stateVars.getLastElement().remove(nodeToRemove);
-    }
-
-    public void removeNode(IntVar[] nodeToRemove) {
-        Arrays.asList(nodeToRemove).forEach(this.stateVars.getLastElement()::remove);
-    }
+//    public void removeNode(IntVar nodeToRemove) {
+//        this.stateVars.getLastElement().remove(nodeToRemove);
+//    }
+//
+//    public void removeNode(IntVar[] nodeToRemove) {
+//        Arrays.asList(nodeToRemove).forEach(this.stateVars.getLastElement()::remove);
+//    }
 
     @Override
     public String toString() {

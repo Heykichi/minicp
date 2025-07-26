@@ -1,5 +1,6 @@
 package minicp.ANDOR_use_example;
 
+import minicp.ANDOR_engine.AND_DFSearch;
 import minicp.ANDOR_engine.AND_DFSearch_partial_solution;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
@@ -10,13 +11,13 @@ import static minicp.ANDOR_engine.AND_BranchingScheme.BasicTreeBuilding;
 import static minicp.ANDOR_engine.AND_BranchingScheme.firstFail;
 
 
-public class AND_PS_example2 {
+public class AND_example2 {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeANDSolver(false);
         int index = 3;
-        IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
-        IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
+        IntVar[] X = Factory.makeIntVarArray(cp, index, index);
+        IntVar[] Z = Factory.makeIntVarArray(cp, index, index);
 
         cp.post(Factory.allDifferent(X));
         cp.post(Factory.allDifferent(Z));
@@ -32,7 +33,7 @@ public class AND_PS_example2 {
         // the branching must return a branch.
         // In the case of AND branches, variables assigned to subbranches must be removed (graph.removeNode(Intvar v) or graph.removeNode(Intvar[] v)).
         //
-        AND_DFSearch_partial_solution search = Factory.makeAND_Dfs_PS(cp, BasicTreeBuilding(cp));
+        AND_DFSearch search = Factory.makeAND_Dfs(cp, BasicTreeBuilding(cp));
 
         search.setBranching(firstFail());
 
@@ -43,7 +44,7 @@ public class AND_PS_example2 {
         });
 
 
-        SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 1000);
+        SearchStatistics stats = search.solve(2000);
         System.out.println("=======================================================================");
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);

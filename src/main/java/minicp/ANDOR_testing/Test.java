@@ -2,6 +2,7 @@ package minicp.ANDOR_testing;
 
 import minicp.ANDOR_engine.AND_MiniCP;
 import minicp.ANDOR_engine.ConstraintGraph;
+import minicp.ANDOR_engine.SlicedTable;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.state.StateManager;
@@ -9,76 +10,44 @@ import minicp.state.StateStack;
 
 import java.util.*;
 
+import static minicp.ANDOR_engine.SlicedTable.computeSlicedTable;
+
 public class Test {
     public static void main(String[] args) {
-        AND_MiniCP cp = (AND_MiniCP) Factory.makeANDSolver(true);
-        ConstraintGraph g = cp.getGraph();
-        IntVar Y = Factory.makeIntVar(cp,1);
-        IntVar Z = Factory.makeIntVar(cp,2);
-        IntVar X = Factory.makeIntVar(cp,3);
-        cp.post(Factory.notEqual(Y, Z));
-        cp.post(Factory.notEqual(X, Z));
+
+        Map<Integer, Integer> h0a = new HashMap<>();
+        h0a.put(0, 0);
+        Map<Integer, Integer> h0b = new HashMap<>();
+        h0b.put(0, 1);
+        Map<Integer, Integer> h1a = new HashMap<>();
+        h1a.put(1, 0);
+        Map<Integer, Integer> h1b = new HashMap<>();
+        h1b.put(1,1);
+        Map<Integer, Integer> h3 = new HashMap<>();
+        h3.put(3,0);
+        Map<Integer, Integer> h3b = new HashMap<>();
+        h3b.put(3,9);
+        h3b.put(0,9);
+        h3b.put(1,9);
+
+        SlicedTable s1 = new SlicedTable(h1a);
+        SlicedTable s2 = new SlicedTable(h1b);
+        SlicedTable s3 = new SlicedTable(h3, Collections.singletonList(Arrays.asList(s1, s2)));
+
+        List<List<SlicedTable>> l = new ArrayList<>();
+        l.add(Collections.singletonList(s3));
+        l.add(Arrays.asList(new SlicedTable(h0a),new SlicedTable(h0b)));
 
 
-
-        IntVar Z1 = Factory.makeIntVar(cp,4);
-        IntVar X2 = Factory.makeIntVar(cp,4);
-        cp.post(Factory.notEqual(X2, Z1));
-
-
-
-        List<Set<IntVar>> L = g.findIndependentSubgraphs();
-        g.printSubgraph();
-        System.out.println(g);
-
-        System.out.println(Z1.hashCode());
-        System.out.println(System.identityHashCode(Z1));
-        // System.identityHashCode(node)
-
-        System.out.println("========");
-
-        StateStack<ArrayList<IntVar>> s = new StateStack<ArrayList<IntVar>>(cp.getStateManager());
-
-        StateManager sm = cp.getStateManager();
-        ArrayList<IntVar> initialList = new ArrayList<>();
-        initialList.add(Y);
-        s.push(initialList);
-        System.out.println(s.getLastElement());
-        for (int i = 1; i < 10; i++) {
-            final int a = i;
-            sm.withNewState(() -> {
-                ArrayList<IntVar> Li = new ArrayList<>(s.getLastElement());
-                Li.add(Factory.makeIntVar(cp,a));
-                s.push(Li);
-                //s.getLastElement().add(Factory.makeIntVar(cp,a+1));
-                //Li.remove(Y);
-
-                //s.getLastElement().add(Factory.makeIntVar(cp,a+1));
-                System.out.println(s.getLastElement());
-            });
+        List<SlicedTable> solu = new ArrayList<>();
+        solu.add(new SlicedTable(null, l));
+        List<Map<Integer, Integer>> listSolutions = computeSlicedTable(Arrays.asList(new SlicedTable(h3b),new SlicedTable(null,Collections.singletonList(solu))),10000);
+        System.out.println("================");
+        System.out.println(listSolutions.size());
+        for (Map<Integer, Integer> sol : listSolutions) {
+            System.out.println("====");
+            System.out.println(sol);
         }
 
-        System.out.println("===========");
-
-        //System.out.println(Z1);
-        StateStack<ArrayList<Integer>> s2 = new StateStack<ArrayList<Integer>>(sm);
-        ArrayList<Integer> L1 = new ArrayList<>();
-        ArrayList<Integer> L2 = new ArrayList<>();
-        s2.push(L1);
-        L1.add(1);
-        L2.add(2);
-        System.out.println(s2.getLastElement());
-        sm.saveState();
-        s2.push(L2);
-        System.out.println(s2.getLastElement());
-        Z1.fix(1);
-        sm.restoreState();
-        //System.out.println(Z1);
-        System.out.println(s2.getLastElement());
-
-        s2.getLastElement().add(3);
-        s2.getLastElement().add(3);
-        s2.getLastElement().add(3);
-        System.out.println(s2.getLastElement());
     }
 }

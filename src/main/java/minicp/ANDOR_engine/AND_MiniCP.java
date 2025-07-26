@@ -125,5 +125,6 @@ public class AND_MiniCP implements Solver {
     @Override
     public ConstraintGraph getGraph() {
         this.graph.newState();
-        return this.graph;}
+        return this.graph;
+    }
 }

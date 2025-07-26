@@ -1,24 +1,27 @@
-package minicp.ANDOR_use_example;
+package minicp.ANDOR_use_example_PS;
 
 import minicp.ANDOR_engine.AND_DFSearch_partial_solution;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.search.SearchStatistics;
-import static minicp.ANDOR_engine.AND_BranchingScheme.*;
+
+import static minicp.ANDOR_engine.AND_BranchingScheme.BasicTreeBuilding;
+import static minicp.ANDOR_engine.AND_BranchingScheme.firstFail;
 
 
-public class AND_PS_example1_1 {
+public class AND_PS_example2 {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeANDSolver(false);
-        int index = 4;
-        IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
-        IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
-        IntVar Y = Factory.makeIntVar(cp, 4);
+        int index = 3;
+        IntVar[] X = Factory.makeIntVarArray(cp, index, index);
+        IntVar[] Z = Factory.makeIntVarArray(cp, index, index);
 
-        cp.post(Factory.sum(X, Y));
-        cp.post(Factory.sum(Z, Y));
+        cp.post(Factory.allDifferent(X));
+        cp.post(Factory.allDifferent(Z));
+
+        cp.post(Factory.equal(X[0], Z[0]));
 
         //System.out.println(cp.getGraph().toString());
 
@@ -34,26 +37,16 @@ public class AND_PS_example1_1 {
         search.setBranching(firstFail());
 
         search.onSolution(() -> {
-            System.out.print("1) ");
-            printSum(X, Y);
-
-            System.out.print("2) ");
-            printSum(Z, Y);
-            System.out.println();
+            System.out.println(" "+ X[0] + " - " + X[1] + " - " + X[2] );
+            System.out.println("  | ");
+            System.out.println(" "+ Z[0] + " - " + Z[1] + " - " + Z[2] + "\n");
         });
 
-        SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 1000);
+
+        SearchStatistics stats = search.solve(2000);
         System.out.println("=======================================================================");
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);
-    }
 
-    public static void printSum(IntVar[] vars, IntVar sum){
-        StringBuilder expression = new StringBuilder();
-        for (int i = 0; i < vars.length -1; i += 1) {
-            expression.append(vars[i]).append(" + ");
-        }
-        expression.append(vars[vars.length-1]);
-        System.out.println(expression.toString() + " = " + sum);
     }
 }
