@@ -162,4 +162,6 @@ public interface IntVar {
      *            is thrown if the domain becomes empty
      */
     void removeAbove(int v);
+
+    int getId();
 }

@@ -15,7 +15,6 @@
 
 package minicp.ANDOR_engine;
 
-import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.search.DFSListener;
@@ -26,18 +25,14 @@ import minicp.util.Procedure;
 import minicp.util.exception.InconsistencyException;
 import minicp.util.exception.NotImplementedException;
 
-import java.sql.SQLOutput;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static java.lang.Math.max;
-import static minicp.ANDOR_engine.AND_BranchingScheme.firstOrder;
 
 /**
  * Depth First Search Branch and Bound implementation
@@ -91,7 +86,6 @@ public class AND_DFSearch_partial_solution {
         });
     }
 
-
     public void addListener(DFSListener listener) {
         dfsListeners.add(listener);
     }
@@ -114,7 +108,6 @@ public class AND_DFSearch_partial_solution {
         });
     }
 
-
     private void notifySolution(int parentId, int nodeId, int position) {
         dfsListeners.forEach(l -> l.solution(parentId, nodeId, position));
     }
@@ -132,8 +125,6 @@ public class AND_DFSearch_partial_solution {
         this.solutionLimit = solutionLimit;
         sm.withNewState(() -> {
             try {
-                System.out.println("=====0=====");
-                System.out.println(this.cp.getGraph().getStateVariables());
                 int n_Solutions = dfs(statistics, -1, -1,0);
                 statistics.incrSolutions(n_Solutions);
                 if (this.complete) statistics.setCompleted();
@@ -155,9 +146,8 @@ public class AND_DFSearch_partial_solution {
         return solve(statistics, Integer.MAX_VALUE);
     }
 
-    // TODO CHECK NOTIFYBRANCH => CALCULE NODE/CHOICE + LIMITE
-    private int dfs(SearchStatistics statistics, int parentId, int position, int andLevel) {
 
+    private int dfs(SearchStatistics statistics, int parentId, int position, int andLevel) {
         Objects.requireNonNull(this.branching, "No branching instruction");
         Objects.requireNonNull(this.treeBuilding, "No tree building instruction");
 
@@ -167,15 +157,10 @@ public class AND_DFSearch_partial_solution {
             return -1;
         }
 
-        // TODO GESTION SOLUTION
         int n_Solutions = 0;
-
         if (branch.getVariables() == null & branch.getBranches() != null){
-            System.out.println("AND");
             n_Solutions = processAndBranch(branch, statistics, parentId, position, andLevel);
-
         } else if (branch.getVariables() != null) {
-            System.out.println("OR");
             n_Solutions = processOrBranch(branch, statistics, parentId, position, andLevel);
         } else {
             throw new IllegalArgumentException("No branch available");
@@ -183,13 +168,10 @@ public class AND_DFSearch_partial_solution {
         return n_Solutions;
     }
 
-    // TODO SPLIT + GESTION SOLUTION => oui d'un coté et non de l'autre => check
     private int processAndBranch(Branch branch, SearchStatistics statistics, int parentId, int position, int AndLevel){
-
         final int nodeId = currNodeIdId++;
         System.out.println("AND branch of depth "+AndLevel+" =================================================");
         notifySolution(parentId,nodeId, position);
-        //notifyBranch(parentId,nodeId, position, branch.getBranches().length);
         int pos = 0;
         final int[] n_Solutions = {1};
         int a = 0;
@@ -199,9 +181,7 @@ public class AND_DFSearch_partial_solution {
             a++;
             final int p = pos;
             sm.withNewState(() -> {
-
-                //statistics.incrNodes();
-                this.cp.getGraph().newState(B.getVariables());
+                this.cp.getGraphWithStart().newState(B.getVariables());
                 int solution = 1;
                 if (B.getToFix()) {
                     solution = processOrBranch(new Branch(B.getVariables()), statistics, parentId, position, AndLevel+1);
@@ -220,9 +200,7 @@ public class AND_DFSearch_partial_solution {
     }
 
     private int processOrBranch(Branch branch, SearchStatistics statistics, int parentId, int position, int AndLevel){
-
         final int nodeId = currNodeIdId++;
-
         Procedure[] branches = new Procedure[0];
         if (branch.getVariables() != null){
             branches = this.branching.apply(branch.getVariables());
@@ -231,7 +209,7 @@ public class AND_DFSearch_partial_solution {
         int pos = 0;
         if (branches.length == 0) {
             System.out.println();
-            if (cp.getGraph().solutionFound()){
+            if (cp.getGraphWithStart().solutionFound()){
                 notifySolution(parentId,nodeId, position);
                 return 1;
             } else if (branch.getBranches() == null ){

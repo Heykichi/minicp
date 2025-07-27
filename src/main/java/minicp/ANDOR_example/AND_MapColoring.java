@@ -1,11 +1,11 @@
 package minicp.ANDOR_example;
 
+import minicp.ANDOR_engine.AND_BranchingScheme;
 import minicp.ANDOR_engine.AND_DFSearch;
-import minicp.ANDOR_engine.AND_DFSearch_partial_solution;
+import minicp.ANDOR_engine.Branch;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
-import minicp.search.DFSearch;
 import minicp.search.SearchStatistics;
 import minicp.util.io.InputReader;
 
@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static minicp.ANDOR_engine.AND_BranchingScheme.BasicTreeBuilding;
-import static minicp.cp.BranchingScheme.firstFail;
+import static minicp.ANDOR_engine.AND_BranchingScheme.firstFail;
 
 public class AND_MapColoring {
     public static void main(String[] args) {
@@ -45,14 +45,29 @@ public class AND_MapColoring {
             }
         } catch (RuntimeException e) {}
 
-        System.out.println("start");
+        AND_DFSearch search = Factory.makeAND_Dfs(cp, BasicTreeBuilding(cp), AND_BranchingScheme.firstFail());
 
-        AND_DFSearch search = Factory.makeAND_Dfs(cp, BasicTreeBuilding(cp));
+//        Branch B = new Branch(countriesVars);
+//        AND_DFSearch search = Factory.makeAND_Dfs(cp, () -> {
+//            System.out.println("ddd");
+//            if (!countriesVars[0].isFixed()) {
+//                return B;
+//            }
+//            System.out.println();
+//            return null;
+//        });
+
+        search.setBranching(firstFail());
 
         search.onSolution(() -> {
             for (int k = 0; k < countriesVars.length; k++) {
                 int n = countriesVars[k].min()+1;
-                System.out.println(countriesNames.get(k) + " " + n);
+                if (countriesVars[k].isFixed()){
+                    System.out.println(countriesNames.get(k) + " " + n);
+                } else {
+                    System.out.println(countriesNames.get(k) + " " + 8);
+                }
+
             }
         });
         // https://paintmaps.com/map-charts/293/World-map-chart
@@ -63,6 +78,5 @@ public class AND_MapColoring {
         System.out.format("\nExecution time : %s ms\n", (fin - debut) / 1_000_000);
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);
-
     }
 }

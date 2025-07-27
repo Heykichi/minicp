@@ -13,7 +13,7 @@ public class AND_example1_1 {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeANDSolver(false);
-        int index = 4;
+        int index = 10;
         IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
         IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
         IntVar Y = Factory.makeIntVar(cp, 4);
@@ -21,15 +21,6 @@ public class AND_example1_1 {
         cp.post(Factory.sum(X, Y));
         cp.post(Factory.sum(Z, Y));
 
-        //System.out.println(cp.getGraph().toString());
-
-        // Branch(IntVar[] variables, Branch[] branches, boolean rebranching)
-        // we fix variables, then branches. If rebranching == true, we call rebranching (in series for an OR branch or in parallel for an AND branch)
-        // only one rebranching is possible to avoid searching for a node multiple times
-
-        // the branching must return a branch.
-        // In the case of AND branches, variables assigned to subbranches must be removed (graph.removeNode(Intvar v) or graph.removeNode(Intvar[] v)).
-        //
         AND_DFSearch search = Factory.makeAND_Dfs(cp, BasicTreeBuilding(cp));
 
         search.setBranching(firstFail());
@@ -43,10 +34,14 @@ public class AND_example1_1 {
             System.out.println();
         });
 
-        SearchStatistics stats = search.solve(2000);
+        long debut = System.nanoTime();
+        SearchStatistics stats = search.solve(200000,false);
+        long fin = System.nanoTime();
         System.out.println("=======================================================================");
+        System.out.format("Execution time : %s ms\n", (fin - debut) / 1_000_000);
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);
+
     }
 
     public static void printSum(IntVar[] vars, IntVar sum){

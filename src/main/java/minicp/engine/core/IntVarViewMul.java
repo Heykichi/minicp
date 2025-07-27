@@ -138,6 +138,11 @@ public class IntVarViewMul implements IntVar {
         x.removeAbove(floorDiv(v, a));
     }
 
+    @Override
+    public int getId() {
+        return -1;
+    }
+
     // Java's division always rounds to the integer closest to zero, but we need flooring/ceiling versions.
     private int floorDiv(int a, int b) {
         int q = a / b;

@@ -119,6 +119,11 @@ public class IntVarViewOpposite implements IntVar {
     }
 
     @Override
+    public int getId() {
+        return -1;
+    }
+
+    @Override
     public String toString() {
         StringBuilder b = new StringBuilder();
         b.append("{");

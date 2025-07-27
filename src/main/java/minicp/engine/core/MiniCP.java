@@ -34,6 +34,7 @@ public class MiniCP implements Solver {
     private List<Procedure> fixPointListeners = new LinkedList<>();
 
     private final StateManager sm;
+    private int id = 0;
 
     //private final StateStack<IntVar> vars;
 
@@ -112,8 +113,19 @@ public class MiniCP implements Solver {
     }
 
     @Override
+    public ConstraintGraph getGraphWithStart() {
+        return null;
+    }
+
+    @Override
     public ConstraintGraph getGraph() {
         return null;
+    }
+
+    @Override
+    public int getId() {
+        id ++;
+        return id;
     }
 
     @Override

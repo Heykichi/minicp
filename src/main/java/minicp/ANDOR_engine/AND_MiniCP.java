@@ -19,7 +19,6 @@ import minicp.cp.Factory;
 import minicp.engine.core.*;
 import minicp.search.Objective;
 import minicp.state.StateManager;
-import minicp.state.StateStack;
 import minicp.util.Procedure;
 import minicp.util.exception.InconsistencyException;
 
@@ -32,14 +31,12 @@ public class AND_MiniCP implements Solver {
     private List<Procedure> fixPointListeners = new LinkedList<>();
 
     private final StateManager sm;
-
-    private final StateStack<IntVar> vars;
-
     private ConstraintGraph graph;
+    private int id = -1;
+
 
     public AND_MiniCP(StateManager sm) {
         this.sm = sm;
-        vars = new StateStack<>(sm);
         this.graph = new ConstraintGraph(this);
     }
 
@@ -123,8 +120,19 @@ public class AND_MiniCP implements Solver {
     }
 
     @Override
-    public ConstraintGraph getGraph() {
+    public ConstraintGraph getGraphWithStart() {
         this.graph.newState();
         return this.graph;
+    }
+
+    @Override
+    public ConstraintGraph getGraph() {
+        return this.graph;
+    }
+
+    @Override
+    public int getId() {
+        id ++;
+        return this.id;
     }
 }

@@ -18,7 +18,6 @@ package minicp.engine.core;
 import minicp.state.StateStack;
 import minicp.util.Procedure;
 import minicp.util.exception.InconsistencyException;
-import minicp.util.exception.NotImplementedException;
 
 import java.security.InvalidParameterException;
 import java.util.Collections;
@@ -35,6 +34,7 @@ public class IntVarImpl implements IntVar {
     public final StateStack<Constraint> onDomain;
     public final StateStack<Constraint> onFix;
     public final StateStack<Constraint> onBound;
+    private final int id;
 
     private final DomainListener domListener = new DomainListener() {
         @Override
@@ -90,9 +90,9 @@ public class IntVarImpl implements IntVar {
         onDomain = new StateStack<>(cp.getStateManager());
         onFix = new StateStack<>(cp.getStateManager());
         onBound = new StateStack<>(cp.getStateManager());
+        if (cp.getGraph() != null) this.cp.getGraph().addNode(this);
+        this.id = this.cp.getId();
     }
-
-
 
     /**
      * Creates a variable with a given set of values as initial domain.
@@ -111,6 +111,13 @@ public class IntVarImpl implements IntVar {
         for (int v : d) {
             if (!values.contains(v)) remove(v);
         }
+        if (cp.getGraph() != null) this.cp.getGraph().addNode(this);
+        this.id = this.cp.getId();
+    }
+
+    @Override
+    public int getId() {
+        return this.id;  // Ne change jamais
     }
 
     @Override

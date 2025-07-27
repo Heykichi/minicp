@@ -86,15 +86,14 @@ public class AND_BranchingScheme {
 
     public static Supplier<Branch> BasicTreeBuilding(Solver cp){
         return () -> {
-            ConstraintGraph graph = cp.getGraph();
+            ConstraintGraph graph = cp.getGraphWithStart();
             List<Set<IntVar>> subgraphs = graph.findIndependentSubgraphs();
 
             if (subgraphs != null & subgraphs.size() > 1 ){
                 List<SubBranch> subBranches = new ArrayList<>();
-
                 for (Set<IntVar> s : subgraphs){
                     IntVar[] v = s.toArray(new IntVar[0]);
-                    subBranches.add(new SubBranch(v,v.length <=5 ));
+                    subBranches.add(new SubBranch(v,v.length <= 10 ));
 
                 }
                 SubBranch[] b = subBranches.toArray(new SubBranch[0]);

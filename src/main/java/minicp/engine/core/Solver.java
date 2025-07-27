@@ -102,6 +102,10 @@ public interface Solver {
      *
      * @return the constraint graph
      */
+    ConstraintGraph getGraphWithStart();
+
     ConstraintGraph getGraph();
+
+    int getId();
 }
 

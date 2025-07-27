@@ -14,7 +14,7 @@ public class OR_Base_Problem {
 
         Solver cp = Factory.makeSolver(false);
         
-        int index = 4;
+        int index = 10;
         IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
         IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
 
@@ -52,16 +52,13 @@ public class OR_Base_Problem {
         });
 
         search.onSolution(() -> {
-            System.out.print("1) ");
-            printSum(X,Y);
-
-            System.out.print("2) ");
-            printSum(Z,Y);
-            System.out.println();
         });
-        
-        SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 2000);
 
+        long debut = System.nanoTime();
+        SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 200000);
+        long fin = System.nanoTime();
+        System.out.println("=======================================================================");
+        System.out.format("Execution time : %s ms\n", (fin - debut) / 1_000_000);
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);
 

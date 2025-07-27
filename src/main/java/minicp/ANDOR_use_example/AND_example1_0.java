@@ -58,7 +58,7 @@ public class AND_example1_0 {
             System.out.println();
         });
 
-        SearchStatistics stats = search.solve(2);
+        SearchStatistics stats = search.solve(1);
         System.out.println("=======================================================================");
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);

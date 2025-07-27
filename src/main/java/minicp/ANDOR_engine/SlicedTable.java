@@ -32,7 +32,10 @@ public class SlicedTable {
     public static List<Map<Integer, Integer>> computeSlicedTable(List<SlicedTable> SlicedTables, int limit){
         List<Map<Integer, Integer>> solutions = new ArrayList<>();
         for (SlicedTable st : SlicedTables ){
-            solutions.addAll(computeSubTables(st,limit));
+            List<Map<Integer, Integer>> subs = computeSubTables(st,limit);
+            if (!subs.isEmpty()) {
+                solutions.addAll(subs);
+            }
             if (solutions.size() >= limit) {
                 break;
             }
@@ -42,25 +45,20 @@ public class SlicedTable {
 
     private static List<Map<Integer, Integer>> computeSubTables(SlicedTable slicedTable, int limit){
         List<Map<Integer, Integer>> solutions = new ArrayList<>();
-        solutions.add(slicedTable.getPattern());
+        Map<Integer, Integer> p = slicedTable.getPattern();
 
         if (slicedTable.getSubSlicedTables() == null || slicedTable.getSubSlicedTables().isEmpty()){
-            Map<Integer, Integer> p = slicedTable.getPattern();
-            List<Map<Integer, Integer>> one = new ArrayList<>(1);
             if (p != null) {
-                one.add(new HashMap<>(p));
+                solutions.add(new HashMap<>(p));
             }  else {
                 throw new IllegalStateException("Null pattern ");
-                //return null;
             }
-            return one;
+            return solutions;
         }
-
+        solutions.add(slicedTable.getPattern());
         for (List<SlicedTable> subTables : slicedTable.getSubSlicedTables()){
-
             List<Map<Integer, Integer>> subsolutions = new ArrayList<>();
             for (SlicedTable s : subTables) {
-                if (subsolutions.size() >= limit) break;
                 subsolutions.addAll(computeSubTables(s,limit));
             }
             solutions = combine(solutions, subsolutions,limit);
@@ -69,6 +67,12 @@ public class SlicedTable {
     }
     private static List<Map<Integer, Integer>> combine(List<Map<Integer, Integer>> a, List<Map<Integer, Integer>> b,int limit) {
         List<Map<Integer, Integer>> resultat = new ArrayList<>();
+        if (a.isEmpty()) {
+            a.add(new HashMap<>());
+        }
+        if (b.isEmpty()) {
+            return a;
+        }
         for (Map<Integer, Integer> l1 : a) {
             for (Map<Integer, Integer> l2 : b) {
                 Map<Integer, Integer> nouvelle = new HashMap<>();
@@ -79,9 +83,6 @@ public class SlicedTable {
         }
         return resultat;
     }
-
 }
-
-// TODO fonction pour transformer une sliced tables en liste de solutions
 
 

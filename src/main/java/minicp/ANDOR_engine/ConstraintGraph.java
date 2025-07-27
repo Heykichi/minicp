@@ -75,7 +75,6 @@ public class ConstraintGraph {
         this.adjacencyList.putIfAbsent(node, new HashSet<IntVar>());
     }
 
-
     /**
      * Adds multiple nodes to the constraint graph if the node does not already exist.
      * For each node, it initializes an empty set of neighbors in the adjacency list.
@@ -99,8 +98,6 @@ public class ConstraintGraph {
         if (node1.equals(node2)) {
             throw new IllegalArgumentException("Self-edge are not allowed");
         }
-        addNode(node1);
-        addNode(node2);
         adjacencyList.get(node1).add(node2);
         adjacencyList.get(node2).add(node1);
     }
@@ -176,30 +173,30 @@ public class ConstraintGraph {
         System.out.println(
                 subgraphs.stream()
                         .map(set -> set.stream()
-                                .map(obj -> String.valueOf(obj.hashCode()))
+                                .map(obj -> String.valueOf(obj.getId()))
                                 .collect(Collectors.joining(", ", "[", "]")))
                         .collect(Collectors.joining(", ", "[", "]"))
         );
     }
 
-//    public void removeNode(IntVar nodeToRemove) {
-//        this.stateVars.getLastElement().remove(nodeToRemove);
-//    }
-//
-//    public void removeNode(IntVar[] nodeToRemove) {
-//        Arrays.asList(nodeToRemove).forEach(this.stateVars.getLastElement()::remove);
-//    }
+    public void removeNode(IntVar nodeToRemove) {
+        this.stateVars.getLastElement().remove(nodeToRemove);
+    }
+
+    public void removeNode(IntVar[] nodeToRemove) {
+        Arrays.asList(nodeToRemove).forEach(this.stateVars.getLastElement()::remove);
+    }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<IntVar, Set<IntVar>> entry : adjacencyList.entrySet()) {
-            sb.append(entry.getKey().hashCode()).append(" : ").append(entry.getKey()).append(" -> ");
+            sb.append(entry.getKey().getId()).append(" : ").append(entry.getKey()).append(" -> ");
             if (entry.getValue().isEmpty()) {
                 sb.append(" / ");
             } else {
                 sb.append(entry.getValue().stream()
-                        .map(Object::hashCode)
+                        .map(IntVar::getId)
                         .map(String::valueOf)
                         .collect(Collectors.joining(", ")));
             }

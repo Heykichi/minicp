@@ -137,6 +137,11 @@ public class BoolVarImpl implements BoolVar {
     }
 
     @Override
+    public int getId() {
+        return -1;
+    }
+
+    @Override
     public String toString() {
         if (isTrue()) return "true";
         else if (isFalse()) return "false";

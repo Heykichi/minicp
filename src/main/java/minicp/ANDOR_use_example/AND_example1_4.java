@@ -32,7 +32,7 @@ public class AND_example1_4 {
                 return B;
             }
             if (Y.isFixed()) {
-                ConstraintGraph graph = cp.getGraph();
+                ConstraintGraph graph = cp.getGraphWithStart();
                 return new Branch(graph.getUnfixedVariables().toArray(new IntVar[0]));
             }
             return null;
