@@ -15,7 +15,7 @@
 
 package minicp.cp;
 
-import static minicp.ANDOR_engine.AND_BranchingScheme.*;
+import static minicp.ANDOR_engine.AND_Scheme.*;
 import minicp.ANDOR_engine.AND_DFSearch;
 import minicp.ANDOR_engine.AND_DFSearch_partial_solution;
 import minicp.ANDOR_engine.AND_MiniCP;
@@ -35,9 +35,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
-
-import minicp.ANDOR_engine.AND_BranchingScheme.*;
-
 
 
 /**
@@ -230,7 +227,7 @@ public final class Factory {
     public static AND_DFSearch_partial_solution makeAND_Dfs_PS(Solver cp, Supplier<Branch> treeBuilding) {
         return new AND_DFSearch_partial_solution(cp, treeBuilding, firstOrder());
     }
-    public static AND_DFSearch_partial_solution makeAND_Dfs_PS(Solver cp, Supplier<Branch> treeBuilding, Function<IntVar[], Procedure[]> branching) {
+    public static AND_DFSearch_partial_solution makeAND_Dfs_PS(Solver cp, Supplier<Branch> treeBuilding, Function<Set<IntVar>, Procedure[]> branching) {
         return new AND_DFSearch_partial_solution(cp, treeBuilding, branching);
     }
 
@@ -238,7 +235,7 @@ public final class Factory {
         return new AND_DFSearch(cp, treeBuilding, firstOrder());
     }
 
-    public static AND_DFSearch makeAND_Dfs(Solver cp, Supplier<Branch> treeBuilding, Function<IntVar[], Procedure[]> branching) {
+    public static AND_DFSearch makeAND_Dfs(Solver cp, Supplier<Branch> treeBuilding, Function<Set<IntVar>, Procedure[]> branching) {
         return new AND_DFSearch(cp, treeBuilding, branching);
     }
 

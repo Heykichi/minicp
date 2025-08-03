@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class SlicedTable {
     private Map<Integer, Integer> pattern = null;
-    private List<List<SlicedTable>> subSlicedTables = null;
+    private final List<List<SlicedTable>> subSlicedTables;
 
     public SlicedTable(Map<Integer, Integer> pattern, List<List<SlicedTable>> subSlicedTables) {
         this.pattern = pattern;
@@ -51,7 +51,7 @@ public class SlicedTable {
             if (p != null) {
                 solutions.add(new HashMap<>(p));
             }  else {
-                throw new IllegalStateException("Null pattern ");
+                throw new IllegalStateException("Null pattern without sub-tables");
             }
             return solutions;
         }
@@ -65,7 +65,8 @@ public class SlicedTable {
         }
         return solutions;
     }
-    private static List<Map<Integer, Integer>> combine(List<Map<Integer, Integer>> a, List<Map<Integer, Integer>> b,int limit) {
+
+    private static List<Map<Integer, Integer>> combine(List<Map<Integer, Integer>> a, List<Map<Integer, Integer>> b, int limit) {
         List<Map<Integer, Integer>> resultat = new ArrayList<>();
         if (a.isEmpty()) {
             a.add(new HashMap<>());
@@ -73,12 +74,16 @@ public class SlicedTable {
         if (b.isEmpty()) {
             return a;
         }
+        outer:
         for (Map<Integer, Integer> l1 : a) {
             for (Map<Integer, Integer> l2 : b) {
                 Map<Integer, Integer> nouvelle = new HashMap<>();
                 if (l1 != null) nouvelle.putAll(l1);
                 nouvelle.putAll(l2);
                 resultat.add(nouvelle);
+                if (resultat.size() >= limit) {
+                    break outer;
+                }
             }
         }
         return resultat;

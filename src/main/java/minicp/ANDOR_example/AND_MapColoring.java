@@ -1,8 +1,8 @@
 package minicp.ANDOR_example;
 
-import minicp.ANDOR_engine.AND_BranchingScheme;
+import minicp.ANDOR_engine.AND_DFSearch_partial_solution;
+import minicp.ANDOR_engine.AND_Scheme;
 import minicp.ANDOR_engine.AND_DFSearch;
-import minicp.ANDOR_engine.Branch;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
@@ -12,8 +12,7 @@ import minicp.util.io.InputReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import static minicp.ANDOR_engine.AND_BranchingScheme.BasicTreeBuilding;
-import static minicp.ANDOR_engine.AND_BranchingScheme.firstFail;
+import static minicp.ANDOR_engine.AND_Scheme.*;
 
 public class AND_MapColoring {
     public static void main(String[] args) {
@@ -45,34 +44,24 @@ public class AND_MapColoring {
             }
         } catch (RuntimeException e) {}
 
-        AND_DFSearch search = Factory.makeAND_Dfs(cp, BasicTreeBuilding(cp), AND_BranchingScheme.firstFail());
-
-//        Branch B = new Branch(countriesVars);
-//        AND_DFSearch search = Factory.makeAND_Dfs(cp, () -> {
-//            System.out.println("ddd");
-//            if (!countriesVars[0].isFixed()) {
-//                return B;
-//            }
-//            System.out.println();
-//            return null;
-//        });
-
-        search.setBranching(firstFail());
+        //AND_DFSearch_partial_solution search = Factory.makeAND_Dfs_PS(cp, naiveTreeBuilding(cp,1,5), AND_Scheme.firstFail());
+        AND_DFSearch search = Factory.makeAND_Dfs(cp, naiveTreeBuilding2(cp,10,10), AND_Scheme.firstFail());
 
         search.onSolution(() -> {
-            for (int k = 0; k < countriesVars.length; k++) {
-                int n = countriesVars[k].min()+1;
-                if (countriesVars[k].isFixed()){
-                    System.out.println(countriesNames.get(k) + " " + n);
-                } else {
-                    System.out.println(countriesNames.get(k) + " " + 8);
-                }
-
-            }
+//            for (int k = 0; k < countriesVars.length; k++) {
+//                int n = countriesVars[k].min()+1;
+//                if (countriesVars[k].isFixed()){
+//                    System.out.println(countriesNames.get(k) + " " + n);
+//                } else {
+//                    System.out.println(countriesNames.get(k) + " " + 8);
+//                }
+//
+//            }
         });
         // https://paintmaps.com/map-charts/293/World-map-chart
         long debut = System.nanoTime();
-        SearchStatistics stats = search.solve(1);
+        SearchStatistics stats = search.solve(1,true);
+        //SearchStatistics stats = search.solve(2);
         long fin = System.nanoTime();
 
         System.out.format("\nExecution time : %s ms\n", (fin - debut) / 1_000_000);

@@ -1,14 +1,13 @@
 package minicp.ANDOR_use_example;
 
 import minicp.ANDOR_engine.AND_DFSearch;
-import minicp.ANDOR_engine.AND_DFSearch_partial_solution;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.search.SearchStatistics;
 
-import static minicp.ANDOR_engine.AND_BranchingScheme.BasicTreeBuilding;
-import static minicp.ANDOR_engine.AND_BranchingScheme.firstFail;
+import static minicp.ANDOR_engine.AND_Scheme.naiveTreeBuilding;
+import static minicp.ANDOR_engine.AND_Scheme.firstFail;
 
 
 public class AND_example2 {
@@ -33,7 +32,7 @@ public class AND_example2 {
         // the branching must return a branch.
         // In the case of AND branches, variables assigned to subbranches must be removed (graph.removeNode(Intvar v) or graph.removeNode(Intvar[] v)).
         //
-        AND_DFSearch search = Factory.makeAND_Dfs(cp, BasicTreeBuilding(cp));
+        AND_DFSearch search = Factory.makeAND_Dfs(cp, naiveTreeBuilding(cp,1,5));
 
         search.setBranching(firstFail());
 

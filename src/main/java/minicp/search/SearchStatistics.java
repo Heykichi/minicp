@@ -79,7 +79,5 @@ public class SearchStatistics {
         this.solutions = solutions;
     }
 
-    public List<Map<Integer, Integer>> getSolutions() {
-        return solutions;}
-
+    public List<Map<Integer, Integer>> getSolutions() {return solutions;}
 }

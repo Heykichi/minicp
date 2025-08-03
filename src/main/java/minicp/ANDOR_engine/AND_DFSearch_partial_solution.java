@@ -25,14 +25,10 @@ import minicp.util.Procedure;
 import minicp.util.exception.InconsistencyException;
 import minicp.util.exception.NotImplementedException;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import static java.lang.Math.max;
 
 /**
  * Depth First Search Branch and Bound implementation
@@ -40,9 +36,9 @@ import static java.lang.Math.max;
 public class AND_DFSearch_partial_solution {
 
     private Solver cp;
-    private Supplier<Branch> treeBuilding = null;
     private StateManager sm;
-    private Function<IntVar[], Procedure[]> branching;
+    private Supplier<Branch> treeBuilding;
+    private Function<Set<IntVar>, Procedure[]> branching;
 
     private List<DFSListener> dfsListeners = new LinkedList<DFSListener>();
 
@@ -57,14 +53,14 @@ public class AND_DFSearch_partial_solution {
      *
      */
 
-    public AND_DFSearch_partial_solution(Solver cp, Supplier<Branch> treeBuilding, Function<IntVar[], Procedure[]> branching) {
+    public AND_DFSearch_partial_solution(Solver cp, Supplier<Branch> treeBuilding, Function<Set<IntVar>, Procedure[]> branching) {
         this.cp = cp;
         this.sm = cp.getStateManager();
         this.treeBuilding = treeBuilding;
         this.branching = branching;
     }
 
-    public void setBranching(Function<IntVar[], Procedure[]> branching) {
+    public void setBranching(Function<Set<IntVar>, Procedure[]> branching) {
         this.branching = branching;
     }
 
@@ -125,8 +121,8 @@ public class AND_DFSearch_partial_solution {
         this.solutionLimit = solutionLimit;
         sm.withNewState(() -> {
             try {
-                int n_Solutions = dfs(statistics, -1, -1,0);
-                statistics.incrSolutions(n_Solutions);
+                int nSolutions = dfs(statistics, -1, -1, 0);
+                statistics.incrSolutions(nSolutions);
                 if (this.complete) statistics.setCompleted();
             } catch (StopSearchException ignored) {
             } catch (StackOverflowError e) {
@@ -158,10 +154,10 @@ public class AND_DFSearch_partial_solution {
         }
 
         int n_Solutions = 0;
-        if (branch.getVariables() == null & branch.getBranches() != null){
-            n_Solutions = processAndBranch(branch, statistics, parentId, position, andLevel);
-        } else if (branch.getVariables() != null) {
+        if (branch.getVariables() != null && !branch.getVariables().isEmpty()) {
             n_Solutions = processOrBranch(branch, statistics, parentId, position, andLevel);
+        } else if (branch.getBranches() != null && branch.getBranches().length > 0){
+            n_Solutions = processAndBranch(branch, statistics, parentId, position, andLevel);
         } else {
             throw new IllegalArgumentException("No branch available");
         }
@@ -173,11 +169,11 @@ public class AND_DFSearch_partial_solution {
         System.out.println("AND branch of depth "+AndLevel+" =================================================");
         notifySolution(parentId,nodeId, position);
         int pos = 0;
-        final int[] n_Solutions = {1};
+        final int[] nSolutions = {1};
         int a = 0;
         AtomicReference<Boolean> breaking = new AtomicReference<>(false);
         for (SubBranch B : branch.getBranches()) {
-            System.out.println("Depth "+ AndLevel +", subbranch n° " + (a+1) + " \t----------------------");
+            System.out.println("Depth "+ AndLevel +", sub-branch n° " + (a+1) + " \t----------------------");
             a++;
             final int p = pos;
             sm.withNewState(() -> {
@@ -189,14 +185,14 @@ public class AND_DFSearch_partial_solution {
                     solution = dfs(statistics, nodeId, p, AndLevel+1);
                 }
                 if (solution == 0) breaking.set(true);
-                n_Solutions[0] *= solution;
+                nSolutions[0] *= solution;
             });
             if (breaking.get()) {
                 return 0;
             }
             pos += 1;
         }
-        return n_Solutions[0];
+        return nSolutions[0];
     }
 
     private int processOrBranch(Branch branch, SearchStatistics statistics, int parentId, int position, int AndLevel){
@@ -204,7 +200,7 @@ public class AND_DFSearch_partial_solution {
         Procedure[] branches = new Procedure[0];
         if (branch.getVariables() != null){
             branches = this.branching.apply(branch.getVariables());
-            notifyBranch(parentId,nodeId, position, branch.getVariables().length);
+            notifyBranch(parentId,nodeId, position, branch.getVariables().size());
         }
         int pos = 0;
         if (branches.length == 0) {
@@ -220,9 +216,9 @@ public class AND_DFSearch_partial_solution {
 
             }
         } else {
-            final int[] n_Solutions = {0};
+            final int[] nSolutions = {0};
             for (Procedure b : branches) {
-                if (n_Solutions[0] >= this.solutionLimit) {
+                if (nSolutions[0] >= this.solutionLimit) {
                     this.complete = false;
                     break;
                 }
@@ -231,7 +227,7 @@ public class AND_DFSearch_partial_solution {
                     try {
                         statistics.incrNodes();
                         b.call();
-                        n_Solutions[0] += processOrBranch(branch,statistics, nodeId, p, AndLevel);
+                        nSolutions[0] += processOrBranch(branch,statistics, nodeId, p, AndLevel);
 
                     } catch (InconsistencyException e) {
                         currNodeIdId++;
@@ -241,7 +237,7 @@ public class AND_DFSearch_partial_solution {
                 });
                 pos += 1;
             }
-            return n_Solutions[0];
+            return nSolutions[0];
         }
     }
 }

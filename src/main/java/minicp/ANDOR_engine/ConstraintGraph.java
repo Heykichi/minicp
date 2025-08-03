@@ -15,13 +15,13 @@ import java.util.stream.Collectors;
 
 public class ConstraintGraph {
 
-    private Map<IntVar, Set<IntVar>> adjacencyList;
     private final Solver cp;
+    private Map<IntVar, Set<IntVar>> adjacencyList = new HashMap<>();
     private StateStack<Set<IntVar>> stateVars;
+    private Set<IntVar> removedNodes = new HashSet<>();
 
     public ConstraintGraph(Solver cp) {
         this.cp = cp;
-        this.adjacencyList = new HashMap<>();
         this.stateVars = new StateStack<Set<IntVar>>(cp.getStateManager());
         this.stateVars.push(adjacencyList.keySet());
     }
@@ -41,26 +41,26 @@ public class ConstraintGraph {
      * @param key the variable whose unfixed neighbors are to be retrieved
      * @return a list of variables representing the unfixed neighbors of the given variable
      */
-    public List<IntVar> getUnfixedNeighbors (IntVar key){
+    public Set<IntVar> getUnfixedNeighbors(IntVar key) {
         return adjacencyList.get(key).stream()
-                .filter(var -> !var.isFixed() & this.stateVars.getLastElement().contains(var))
-                .collect(Collectors.toList());
+                .filter(var -> !var.isFixed() && this.stateVars.getLastElement().contains(var) && !this.removedNodes.contains(var))
+                .collect(Collectors.toSet());
     }
 
-    public ArrayList<IntVar> getUnfixedVariables() {
+    public Set<IntVar> getUnfixedVariables() {
         return this.stateVars.getLastElement().stream()
-                .filter(var -> !var.isFixed())
-                .collect(Collectors.toCollection(ArrayList::new));
+                .filter(var -> !var.isFixed() && !this.removedNodes.contains(var))
+                .collect(Collectors.toSet());
     }
 
     public void newState(){
         Set<IntVar> newStateValue = new HashSet<>(this.stateVars.getLastElement());
         this.stateVars.push(newStateValue);
+        this.removedNodes.clear();
     }
 
-    public void newState(IntVar[] Variables){
-        Set<IntVar> newStateValue = new HashSet<>(Arrays.asList(Variables));
-        this.stateVars.push(newStateValue);
+    public void newState(Set<IntVar> Variables){
+        this.stateVars.push(Variables);
     }
 
     public Set<IntVar> getStateVariables(){return this.stateVars.getLastElement();}
@@ -132,13 +132,12 @@ public class ConstraintGraph {
         Set<IntVar> visited = new HashSet<>();
 
         for (IntVar node : this.stateVars.getLastElement()) {
-            if (!visited.contains(node) & !node.isFixed() ) {
+            if (!visited.contains(node) && !node.isFixed() && !this.removedNodes.contains(node)) {
                 Set<IntVar> subgraph = new HashSet<>();
                 dfs(node, visited, subgraph);
                 subgraphs.add(subgraph);
             }
         }
-
         return subgraphs;
     }
 
@@ -180,11 +179,26 @@ public class ConstraintGraph {
     }
 
     public void removeNode(IntVar nodeToRemove) {
-        this.stateVars.getLastElement().remove(nodeToRemove);
+        this.removedNodes.add(nodeToRemove);
     }
 
     public void removeNode(IntVar[] nodeToRemove) {
-        Arrays.asList(nodeToRemove).forEach(this.stateVars.getLastElement()::remove);
+        this.removedNodes.addAll(Arrays.asList(nodeToRemove));
+    }
+
+    public void removeNode(Set<IntVar> nodeToRemove) {
+        this.removedNodes.addAll(nodeToRemove);
+    }
+
+    public void restoreNode(IntVar nodeToRestore) {
+        this.removedNodes.remove(nodeToRestore);
+    }
+
+    public void restoreNode(IntVar[] nodeToRestore) {
+        Arrays.asList(nodeToRestore).forEach(this.removedNodes::remove);
+    }
+    public void restoreNode(Set<IntVar> nodeToRestore) {
+        this.removedNodes.removeAll(nodeToRestore);
     }
 
     @Override

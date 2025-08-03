@@ -52,6 +52,7 @@ public class OR_Base_Problem {
         });
 
         search.onSolution(() -> {
+
         });
 
         long debut = System.nanoTime();

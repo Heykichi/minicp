@@ -38,9 +38,9 @@ import static minicp.ANDOR_engine.SlicedTable.computeSlicedTable;
 public class AND_DFSearch {
 
     private Solver cp;
-    private Supplier<Branch> treeBuilding = null;
     private StateManager sm;
-    private Function<IntVar[], Procedure[]> branching;
+    private Supplier<Branch> treeBuilding;
+    private Function<Set<IntVar>, Procedure[]> branching;
 
     private List<DFSListener> dfsListeners = new LinkedList<DFSListener>();
 
@@ -55,14 +55,14 @@ public class AND_DFSearch {
      *
      */
 
-    public AND_DFSearch(Solver cp, Supplier<Branch> treeBuilding, Function<IntVar[], Procedure[]> branching) {
+    public AND_DFSearch(Solver cp, Supplier<Branch> treeBuilding, Function<Set<IntVar>, Procedure[]> branching) {
         this.cp = cp;
         this.sm = cp.getStateManager();
         this.treeBuilding = treeBuilding;
         this.branching = branching;
     }
 
-    public void setBranching(Function<IntVar[], Procedure[]> branching) {
+    public void setBranching(Function<Set<IntVar>, Procedure[]> branching) {
         this.branching = branching;
     }
 
@@ -83,7 +83,6 @@ public class AND_DFSearch {
             }
         });
     }
-
 
     public void addListener(DFSListener listener) {
         dfsListeners.add(listener);
@@ -107,7 +106,6 @@ public class AND_DFSearch {
         });
     }
 
-
     private void notifySolution() {
         dfsListeners.forEach(l -> l.solution(0, 0, 0));
     }
@@ -118,6 +116,25 @@ public class AND_DFSearch {
 
     private void notifyBranch(int parentId, int nodeId, int position, int nChilds) {
         dfsListeners.forEach(l -> l.branch(parentId, nodeId, position, nChilds));
+    }
+
+    private int computeSolution(List<SlicedTable> solutions){
+        int nSolution = 0;
+        ArrayList<Integer> liste = new ArrayList<>();
+        for (SlicedTable sol : solutions) {
+            int n = 1;
+            for (List<SlicedTable> s : sol.getSubSlicedTables()){
+                int a =computeSolution(s);
+                n *= a;
+
+            }
+            nSolution += n;
+            liste.add(n);
+        }
+        if (nSolution == 0) {
+            System.out.println(liste);
+        }
+        return nSolution;
     }
 
     private SearchStatistics solve( SearchStatistics statistics, int solutionLimit, boolean showSolutions) {
@@ -134,13 +151,16 @@ public class AND_DFSearch {
                     throw new RuntimeException("No solution found");
                 }
 
-                List<Map<Integer, Integer>> listSolutions = computeSlicedTable(solutions,solutionLimit);
-
-                statistics.incrSolutions(listSolutions.size());
                 if (showSolutions){
+                    List<Map<Integer, Integer>> listSolutions = computeSlicedTable(solutions,solutionLimit);
+                    statistics.setSolutions(listSolutions);
+                    statistics.incrSolutions(listSolutions.size());
+
                     Set<IntVar> vars = this.cp.getGraphWithStart().getStateVariables();
+
                     int n_solutions = 0;
                     for (Map<Integer, Integer> sol : listSolutions) {
+                        if (vars.size() != sol.size())  throw new RuntimeException("Missing value in a solution, " + vars.size() + " != " + sol.size());
                         sm.withNewState(() -> {
                             for (IntVar var : vars) {
                                 if (sol.containsKey(var.getId())) {
@@ -157,6 +177,9 @@ public class AND_DFSearch {
                             break;
                         }
                     }
+                } else {
+                    int nSolution = computeSolution(solutions);
+                    statistics.incrSolutions(nSolution);
                 }
 
                 if (this.complete) statistics.setCompleted();
@@ -199,7 +222,6 @@ public class AND_DFSearch {
         return pattern;
     }
 
-
     private List<SlicedTable> dfs(SearchStatistics statistics, int parentId, int position) {
         Objects.requireNonNull(this.branching, "No branching instruction");
         Objects.requireNonNull(this.treeBuilding, "No tree building instruction");
@@ -211,12 +233,14 @@ public class AND_DFSearch {
         }
 
         List<SlicedTable> solutions;
-        if (branch.getVariables() == null & branch.getBranches() != null){
+        if (branch.getVariables() != null && !branch.getVariables().isEmpty()) {
+            System.out.println("OR");
+            solutions = processOrBranch(branch, statistics, parentId, position);
+        } else if (branch.getBranches() != null && branch.getBranches().length > 0){
+            System.out.println("AND");
             solutions = new ArrayList<>();
             SlicedTable end = processAndBranch(branch, statistics, parentId, position);
             if (end != null) solutions.add(end);
-        } else if (branch.getVariables() != null) {
-            solutions = processOrBranch(branch, statistics, parentId, position);
         } else {
             throw new IllegalArgumentException("No branch available");
         }
@@ -258,7 +282,7 @@ public class AND_DFSearch {
         Procedure[] branches = new Procedure[0];
         if (branch.getVariables() != null){
             branches = this.branching.apply(branch.getVariables());
-            notifyBranch(parentId,nodeId, position, branch.getVariables().length);
+            notifyBranch(parentId,nodeId, position, branch.getVariables().size());
         }
         int pos = 0;
         List<SlicedTable> solutions = new ArrayList<>();
@@ -267,7 +291,7 @@ public class AND_DFSearch {
             if (cp.getGraphWithStart().solutionFound()){
                 solutions.add(new SlicedTable(getPattern()));
                 return solutions;
-            } else if (branch.getBranches() == null ){
+            } else if (branch.getBranches() == null || branch.getBranches().length == 0){
                 List<SlicedTable> end = dfs(statistics, nodeId, pos);
                 if (end.isEmpty()) {
                     return solutions;
