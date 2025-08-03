@@ -15,6 +15,8 @@
 
 package minicp.search;
 
+import minicp.ANDOR_engine.SlicedTable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +33,7 @@ public class SearchStatistics {
     private int nSolutions = 0;
     private boolean completed = false;
     private List<Map<Integer, Integer>> solutions = null;
+    private List<SlicedTable> slicedTables = null;
 
     public String toString() {
         return "\n\t#choice: " + nNodes
@@ -79,5 +82,13 @@ public class SearchStatistics {
         this.solutions = solutions;
     }
 
-    public List<Map<Integer, Integer>> getSolutions() {return solutions;}
+    public void setSlicedTables(List<SlicedTable> slicedTables) {
+        this.slicedTables = slicedTables;
+    }
+
+    public List<Map<Integer, Integer>> getSolutions() {
+        return solutions;}
+
+    public List<SlicedTable> getSlicedTables() {return
+            slicedTables;}
 }

@@ -14,7 +14,7 @@ public class AND_PS_example1_1 {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeANDSolver(false);
-        int index = 8;
+        int index = 4;
         IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
         IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
         IntVar Y = Factory.makeIntVar(cp, 4);

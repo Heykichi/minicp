@@ -19,9 +19,7 @@ public class MapColoring {
 
         Map<Integer, String> countriesNames = new HashMap<>();
         try {
-            int i = 0;
             while (true) {
-                i++;
                 String name = reader1.getString();
                 int code = reader1.getInt();
                 countriesNames.put(code, name);

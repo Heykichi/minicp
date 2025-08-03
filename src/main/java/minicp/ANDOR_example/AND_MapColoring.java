@@ -21,9 +21,7 @@ public class AND_MapColoring {
 
         Map<Integer, String> countriesNames = new HashMap<>();
         try {
-            int i = 0;
             while (true) {
-                i++;
                 String name = reader1.getString();
                 int code = reader1.getInt();
                 countriesNames.put(code, name);
@@ -45,17 +43,14 @@ public class AND_MapColoring {
         } catch (RuntimeException e) {}
 
         //AND_DFSearch_partial_solution search = Factory.makeAND_Dfs_PS(cp, naiveTreeBuilding(cp,1,5), AND_Scheme.firstFail());
-        AND_DFSearch search = Factory.makeAND_Dfs(cp, naiveTreeBuilding2(cp,10,10), AND_Scheme.firstFail());
-
+        //AND_DFSearch search = Factory.makeAND_Dfs(cp, First(cp,10), AND_Scheme.firstFail());
+        AND_DFSearch search = Factory.makeAND_Dfs(cp, First(cp,15),firstFail());
         search.onSolution(() -> {
 //            for (int k = 0; k < countriesVars.length; k++) {
 //                int n = countriesVars[k].min()+1;
 //                if (countriesVars[k].isFixed()){
 //                    System.out.println(countriesNames.get(k) + " " + n);
-//                } else {
-//                    System.out.println(countriesNames.get(k) + " " + 8);
 //                }
-//
 //            }
         });
         // https://paintmaps.com/map-charts/293/World-map-chart

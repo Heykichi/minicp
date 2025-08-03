@@ -4,19 +4,20 @@ import minicp.engine.core.IntVar;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Branch {
 
     private Set<IntVar> variables = null;
-    private SubBranch[] subBranches = null;
+    private List<SubBranch> subBranches = null;
 
-    public Branch(Set<IntVar> variables, SubBranch[] subBranches) {
+    public Branch(Set<IntVar> variables, List<SubBranch> subBranches) {
         this.variables = variables;
         this.subBranches = subBranches;
     }
 
-    public Branch(IntVar[] varList, SubBranch[] subBranches) {
+    public Branch(IntVar[] varList, List<SubBranch> subBranches) {
         this.variables = new HashSet<>(Arrays.asList(varList));
         this.subBranches = subBranches;
     }
@@ -29,15 +30,15 @@ public class Branch {
         this.variables = new HashSet<>(Arrays.asList(varList));
     }
 
-    public Branch(SubBranch[] subBranches) {
+    public Branch(List<SubBranch> subBranches) {
         this.subBranches = subBranches;
     }
 
-    public void setBranches(SubBranch[] subBranches) {this.subBranches = subBranches;}
+    public void setBranches(List<SubBranch> subBranches) {this.subBranches = subBranches;}
 
     public void setVariables(Set<IntVar> variables) {this.variables = variables;}
 
     public Set<IntVar> getVariables() {return this.variables;}
 
-    public SubBranch[] getBranches() {return this.subBranches;}
+    public List<SubBranch> getBranches() {return this.subBranches;}
 }

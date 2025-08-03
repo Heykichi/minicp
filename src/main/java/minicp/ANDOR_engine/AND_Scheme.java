@@ -15,13 +15,14 @@
 
 package minicp.ANDOR_engine;
 
+import minicp.ANDOR_testing.GraphSeparatorUtils;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.util.Procedure;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -29,6 +30,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static minicp.ANDOR_testing.GraphSeparatorUtils.findBalancedSeparator;
 import static minicp.cp.Factory.equal;
 import static minicp.cp.Factory.notEqual;
 
@@ -89,14 +91,14 @@ public class AND_Scheme {
     public static Supplier<Branch> naiveTreeBuilding(Solver cp, int nVars, int sizeToFix){
         return () -> {
             ConstraintGraph graph = cp.getGraphWithStart();
-            List<Set<IntVar>> subgraphs = graph.findIndependentSubgraphs();
+            List<Set<IntVar>> subgraphs = graph.findConnectedComponents();
 
             if (subgraphs.size() > 1 ){
                 List<SubBranch> subBranches = new ArrayList<>();
                 for (Set<IntVar> s : subgraphs){
                     subBranches.add(new SubBranch(s,s.size() <= sizeToFix ));
                 }
-                return new Branch(subBranches.toArray(new SubBranch[0]));
+                return new Branch(subBranches);
             }
 
             Set<IntVar> variables = graph.getUnfixedVariables();
@@ -112,6 +114,7 @@ public class AND_Scheme {
     }
 
     public static Supplier<Branch> naiveTreeBuilding2(Solver cp, int nVars, int sizeToFix){
+        boolean[] firstCall = {true};
         return () -> {
             ConstraintGraph graph = cp.getGraphWithStart();
             Set<IntVar> variables = graph.getUnfixedVariables();
@@ -126,7 +129,7 @@ public class AND_Scheme {
                 graph.removeNode(varSet);
             }
 
-            List<Set<IntVar>> subgraphs = graph.findIndependentSubgraphs();
+            List<Set<IntVar>> subgraphs = graph.findConnectedComponents();
             List<SubBranch> subBranches = new ArrayList<>();
             if (subgraphs.size() > 1 ){
                 for (Set<IntVar> s : subgraphs){
@@ -134,7 +137,55 @@ public class AND_Scheme {
                 }
             }
 
-            return new Branch(varSet,subBranches.toArray(new SubBranch[0]));
+            return new Branch(varSet,subBranches);
+
+        };
+    }
+
+
+
+    public static Supplier<Branch> First(Solver cp, int sizeToFix){
+        boolean[] firstCall = {true};
+        return () -> {
+            if (firstCall[0]) {
+                firstCall[0] = false;
+                ConstraintGraph graph = cp.getGraphWithStart();
+                List<Set<IntVar>> subgraphs = graph.findConnectedComponents();
+                List<SubBranch> subBranches = new ArrayList<>();
+                if (subgraphs.size() > 1 ){
+                    for (Set<IntVar> s : subgraphs){
+                        subBranches.add(new SubBranch(s,s.size() <= sizeToFix ));
+                    }
+                    return new Branch(subBranches);
+                }
+            }
+
+
+            ConstraintGraph graph = cp.getGraphWithStart();
+            Set<IntVar> unFixedVars = graph.getUnfixedVariables();
+            if (unFixedVars.isEmpty()) {
+                return null;
+            }
+            if (unFixedVars.size() <= sizeToFix) {
+                return new Branch(unFixedVars);
+            }
+            GraphSeparatorUtils.SeparatorResult end = findBalancedSeparator(cp);
+            SubBranch[] s = {new SubBranch(end.groupA), new SubBranch(end.groupB)};
+
+            List<SubBranch> subBranches = new ArrayList<>();
+
+            List<SubBranch> list = new ArrayList<>();
+            if (!end.groupA.isEmpty()){
+                list.add(new SubBranch(end.groupA));
+            }
+            if (!end.groupB.isEmpty()){
+                list.add(new SubBranch(end.groupB));
+            }
+            if (list.size() == 2){
+                return new Branch(end.separator, list);
+            }
+
+            return new Branch(end.separator);
 
         };
     }

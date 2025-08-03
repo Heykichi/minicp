@@ -127,7 +127,7 @@ public class ConstraintGraph {
      *
      * @return a list of sets, where each set contains the nodes of an independent subgraph
      */
-    public List<Set<IntVar>> findIndependentSubgraphs() {
+    public List<Set<IntVar>> findConnectedComponents() {
         List<Set<IntVar>> subgraphs = new ArrayList<>();
         Set<IntVar> visited = new HashSet<>();
 
@@ -168,7 +168,7 @@ public class ConstraintGraph {
      * The formatted string representation of all subgraphs is then printed to the console.
      */
     public void printSubgraph(){
-        List<Set<IntVar>> subgraphs = findIndependentSubgraphs();
+        List<Set<IntVar>> subgraphs = findConnectedComponents();
         System.out.println(
                 subgraphs.stream()
                         .map(set -> set.stream()
@@ -218,5 +218,4 @@ public class ConstraintGraph {
         }
         return sb.toString();
     }
-
 }

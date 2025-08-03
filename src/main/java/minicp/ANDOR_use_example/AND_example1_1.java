@@ -20,7 +20,7 @@ public class AND_example1_1 {
         cp.post(Factory.sum(X, Y));
         cp.post(Factory.sum(Z, Y));
 
-        AND_DFSearch search = Factory.makeAND_Dfs(cp, naiveTreeBuilding2(cp,1,5));
+        AND_DFSearch search = Factory.makeAND_Dfs(cp, First(cp,1),firstFail());
 
         search.setBranching(firstFail());
 

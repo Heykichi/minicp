@@ -156,7 +156,7 @@ public class AND_DFSearch_partial_solution {
         int n_Solutions = 0;
         if (branch.getVariables() != null && !branch.getVariables().isEmpty()) {
             n_Solutions = processOrBranch(branch, statistics, parentId, position, andLevel);
-        } else if (branch.getBranches() != null && branch.getBranches().length > 0){
+        } else if (branch.getBranches() != null && !branch.getBranches().isEmpty()){
             n_Solutions = processAndBranch(branch, statistics, parentId, position, andLevel);
         } else {
             throw new IllegalArgumentException("No branch available");

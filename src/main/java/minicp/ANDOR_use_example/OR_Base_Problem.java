@@ -14,7 +14,7 @@ public class OR_Base_Problem {
 
         Solver cp = Factory.makeSolver(false);
         
-        int index = 10;
+        int index = 4;
         IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
         IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
 

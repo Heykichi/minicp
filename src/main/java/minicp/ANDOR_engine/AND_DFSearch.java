@@ -120,19 +120,13 @@ public class AND_DFSearch {
 
     private int computeSolution(List<SlicedTable> solutions){
         int nSolution = 0;
-        ArrayList<Integer> liste = new ArrayList<>();
         for (SlicedTable sol : solutions) {
             int n = 1;
             for (List<SlicedTable> s : sol.getSubSlicedTables()){
                 int a =computeSolution(s);
                 n *= a;
-
             }
             nSolution += n;
-            liste.add(n);
-        }
-        if (nSolution == 0) {
-            System.out.println(liste);
         }
         return nSolution;
     }
@@ -150,7 +144,7 @@ public class AND_DFSearch {
                 if (solutions.isEmpty()) {
                     throw new RuntimeException("No solution found");
                 }
-
+                statistics.setSlicedTables(solutions);
                 if (showSolutions){
                     List<Map<Integer, Integer>> listSolutions = computeSlicedTable(solutions,solutionLimit);
                     statistics.setSolutions(listSolutions);
@@ -228,15 +222,14 @@ public class AND_DFSearch {
 
         Branch branch = treeBuilding.get();
         if (branch == null) {
-            System.out.println("treeBuilding doesn't give any proposition");
-            return null;
+            throw new RuntimeException("treeBuilding doesn't give any proposition");
         }
 
         List<SlicedTable> solutions;
         if (branch.getVariables() != null && !branch.getVariables().isEmpty()) {
             System.out.println("OR");
             solutions = processOrBranch(branch, statistics, parentId, position);
-        } else if (branch.getBranches() != null && branch.getBranches().length > 0){
+        } else if (branch.getBranches() != null && !branch.getBranches().isEmpty()){
             System.out.println("AND");
             solutions = new ArrayList<>();
             SlicedTable end = processAndBranch(branch, statistics, parentId, position);
@@ -291,7 +284,7 @@ public class AND_DFSearch {
             if (cp.getGraphWithStart().solutionFound()){
                 solutions.add(new SlicedTable(getPattern()));
                 return solutions;
-            } else if (branch.getBranches() == null || branch.getBranches().length == 0){
+            } else if (branch.getBranches() == null || branch.getBranches().isEmpty()){
                 List<SlicedTable> end = dfs(statistics, nodeId, pos);
                 if (end.isEmpty()) {
                     return solutions;
