@@ -1,7 +1,6 @@
 package minicp.ANDOR_example;
 
 import minicp.ANDOR_engine.AND_DFSearch;
-import minicp.ANDOR_engine.AND_Scheme;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
@@ -47,7 +46,7 @@ public class AND_MapColoring_France {
 
         //AND_DFSearch_partial_solution search = Factory.makeAND_Dfs_PS(cp, naiveTreeBuilding(cp,1,5), AND_Scheme.firstFail());
         //AND_DFSearch search = Factory.makeAND_Dfs(cp, naiveTreeBuilding2(cp,30,10), AND_Scheme.firstFail());
-        AND_DFSearch search = Factory.makeAND_Dfs(cp, First(cp,10),firstFail());
+        AND_DFSearch search = Factory.makeAND_Dfs(cp, fiducciaMattheyses(cp,10), firstFail());
 
         search.onSolution(() -> {
             for (int k = 0; k < vars.length; k++) {

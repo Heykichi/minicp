@@ -14,7 +14,7 @@ public class AND_PS_example1_1 {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeANDSolver(false);
-        int index = 4;
+        int index = 15;
         IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
         IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
         IntVar Y = Factory.makeIntVar(cp, 4);
@@ -45,7 +45,7 @@ public class AND_PS_example1_1 {
         });
 
         long debut = System.nanoTime();
-        SearchStatistics stats = search.solve(2000);
+        SearchStatistics stats = search.solve(2000000, false);
         long fin = System.nanoTime();
 
         System.out.println("=======================================================================");

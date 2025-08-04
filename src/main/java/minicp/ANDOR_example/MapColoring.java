@@ -45,14 +45,14 @@ public class MapColoring {
         DFSearch search = Factory.makeDfs(cp, firstFail(countriesVars));
 
         search.onSolution(() -> {
-            for (int k = 0; k < countriesVars.length; k++) {
-                int n = countriesVars[k].min()+1;
-                System.out.println(countriesNames.get(k) + " " + n);
-            }
+//            for (int k = 0; k < countriesVars.length; k++) {
+//                int n = countriesVars[k].min()+1;
+//                System.out.println(countriesNames.get(k) + " " + n);
+//            }
         });
         // https://paintmaps.com/map-charts/293/World-map-chart
         long debut = System.nanoTime();
-        SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 1);
+        SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 2792448);
         long fin = System.nanoTime();
 
         System.out.format("\nExecution time : %s ms\n", (fin - debut) / 1_000_000);

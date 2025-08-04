@@ -1,8 +1,7 @@
 package minicp.ANDOR_example;
 
-import minicp.ANDOR_engine.AND_DFSearch_partial_solution;
-import minicp.ANDOR_engine.AND_Scheme;
 import minicp.ANDOR_engine.AND_DFSearch;
+import minicp.ANDOR_engine.AND_DFSearch_partial_solution;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
@@ -42,20 +41,20 @@ public class AND_MapColoring {
             }
         } catch (RuntimeException e) {}
 
-        //AND_DFSearch_partial_solution search = Factory.makeAND_Dfs_PS(cp, naiveTreeBuilding(cp,1,5), AND_Scheme.firstFail());
-        //AND_DFSearch search = Factory.makeAND_Dfs(cp, First(cp,10), AND_Scheme.firstFail());
-        AND_DFSearch search = Factory.makeAND_Dfs(cp, First(cp,15),firstFail());
+        //AND_DFSearch_partial_solution search = Factory.makeAND_Dfs_PS(cp, naiveTreeBuilding(cp,10,10), firstFail());
+        AND_DFSearch search = Factory.makeAND_Dfs(cp, fiducciaMattheyses(cp,5), firstFail());
+        //AND_DFSearch search = Factory.makeAND_Dfs(cp, greedyPartitioning(cp,15),firstFail());
         search.onSolution(() -> {
-//            for (int k = 0; k < countriesVars.length; k++) {
-//                int n = countriesVars[k].min()+1;
-//                if (countriesVars[k].isFixed()){
-//                    System.out.println(countriesNames.get(k) + " " + n);
-//                }
-//            }
+            for (int k = 0; k < countriesVars.length; k++) {
+                int n = countriesVars[k].min()+1;
+                if (countriesVars[k].isFixed()){
+                    System.out.println(countriesNames.get(k) + " " + n);
+                }
+            }
         });
         // https://paintmaps.com/map-charts/293/World-map-chart
         long debut = System.nanoTime();
-        SearchStatistics stats = search.solve(1,true);
+        SearchStatistics stats = search.solve(1, true);
         //SearchStatistics stats = search.solve(2);
         long fin = System.nanoTime();
 

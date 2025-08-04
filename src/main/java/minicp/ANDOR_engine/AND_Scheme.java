@@ -15,14 +15,12 @@
 
 package minicp.ANDOR_engine;
 
-import minicp.ANDOR_testing.GraphSeparatorUtils;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.util.Procedure;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -30,7 +28,8 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static minicp.ANDOR_testing.GraphSeparatorUtils.findBalancedSeparator;
+import static minicp.ANDOR_testing.GreedyPartitioning.findBalancedSeparator;
+import static minicp.ANDOR_testing.balancedGraphPartitioning.fiducciaMattheysesCut;
 import static minicp.cp.Factory.equal;
 import static minicp.cp.Factory.notEqual;
 
@@ -91,13 +90,8 @@ public class AND_Scheme {
     public static Supplier<Branch> naiveTreeBuilding(Solver cp, int nVars, int sizeToFix){
         return () -> {
             ConstraintGraph graph = cp.getGraphWithStart();
-            List<Set<IntVar>> subgraphs = graph.findConnectedComponents();
-
-            if (subgraphs.size() > 1 ){
-                List<SubBranch> subBranches = new ArrayList<>();
-                for (Set<IntVar> s : subgraphs){
-                    subBranches.add(new SubBranch(s,s.size() <= sizeToFix ));
-                }
+            List<SubBranch> subBranches = graph.splitGraph(sizeToFix);
+            if (subBranches != null){
                 return new Branch(subBranches);
             }
 
@@ -129,13 +123,7 @@ public class AND_Scheme {
                 graph.removeNode(varSet);
             }
 
-            List<Set<IntVar>> subgraphs = graph.findConnectedComponents();
-            List<SubBranch> subBranches = new ArrayList<>();
-            if (subgraphs.size() > 1 ){
-                for (Set<IntVar> s : subgraphs){
-                    subBranches.add(new SubBranch(s,s.size() <= sizeToFix ));
-                }
-            }
+            List<SubBranch> subBranches = graph.splitGraph(sizeToFix);
 
             return new Branch(varSet,subBranches);
 
@@ -144,23 +132,15 @@ public class AND_Scheme {
 
 
 
-    public static Supplier<Branch> First(Solver cp, int sizeToFix){
+    public static Supplier<Branch> greedyPartitioning(Solver cp, int sizeToFix){
         boolean[] firstCall = {true};
         return () -> {
             if (firstCall[0]) {
                 firstCall[0] = false;
                 ConstraintGraph graph = cp.getGraphWithStart();
-                List<Set<IntVar>> subgraphs = graph.findConnectedComponents();
-                List<SubBranch> subBranches = new ArrayList<>();
-                if (subgraphs.size() > 1 ){
-                    for (Set<IntVar> s : subgraphs){
-                        subBranches.add(new SubBranch(s,s.size() <= sizeToFix ));
-                    }
-                    return new Branch(subBranches);
-                }
+                List<SubBranch> b = graph.splitGraph(sizeToFix);
+                if (b != null) return new Branch(b);
             }
-
-
             ConstraintGraph graph = cp.getGraphWithStart();
             Set<IntVar> unFixedVars = graph.getUnfixedVariables();
             if (unFixedVars.isEmpty()) {
@@ -169,23 +149,56 @@ public class AND_Scheme {
             if (unFixedVars.size() <= sizeToFix) {
                 return new Branch(unFixedVars);
             }
-            GraphSeparatorUtils.SeparatorResult end = findBalancedSeparator(cp);
-            SubBranch[] s = {new SubBranch(end.groupA), new SubBranch(end.groupB)};
+            Set<IntVar>[] end = findBalancedSeparator(graph);
+            SubBranch[] s = {new SubBranch(end[1]), new SubBranch(end[2])};
 
             List<SubBranch> subBranches = new ArrayList<>();
-
-            List<SubBranch> list = new ArrayList<>();
-            if (!end.groupA.isEmpty()){
-                list.add(new SubBranch(end.groupA));
+            if (!end[1].isEmpty()){
+                subBranches.add(new SubBranch(end[1]));
             }
-            if (!end.groupB.isEmpty()){
-                list.add(new SubBranch(end.groupB));
+            if (!end[2].isEmpty()){
+                subBranches.add(new SubBranch(end[2]));
             }
-            if (list.size() == 2){
-                return new Branch(end.separator, list);
+            if (subBranches.size() == 2){
+                return new Branch(end[0], subBranches);
             }
 
-            return new Branch(end.separator);
+            return new Branch(end[0]);
+
+        };
+    }
+
+    public static Supplier<Branch> fiducciaMattheyses(Solver cp, int sizeToFix){
+        boolean[] firstCall = {true};
+        return () -> {
+            if (firstCall[0]) {
+                firstCall[0] = false;
+                ConstraintGraph graph = cp.getGraphWithStart();
+                List<SubBranch> b = graph.splitGraph(sizeToFix);
+                if (b != null) return new Branch(b);
+            }
+            ConstraintGraph graph = cp.getGraphWithStart();
+            Set<IntVar> unFixedVars = graph.getUnfixedVariables();
+            if (unFixedVars.isEmpty()) {
+                return null;
+            }
+            if (unFixedVars.size() <= sizeToFix) {
+                return new Branch(unFixedVars);
+            }
+
+            Set<IntVar> cut = fiducciaMattheysesCut(graph);
+
+            graph.removeNode(cut);
+            List<Set<IntVar>> subSet = graph.findConnectedComponents();
+
+            if (subSet.size() > 1) {
+                List<SubBranch> subBranches = new ArrayList<>();
+                for (Set<IntVar> s1 : subSet) {
+                    subBranches.add(new SubBranch(s1,s1.size() <= sizeToFix));
+                }
+                return new Branch(cut, subBranches);
+            }
+            return new Branch(cut);
 
         };
     }

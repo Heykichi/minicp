@@ -178,6 +178,19 @@ public class ConstraintGraph {
         );
     }
 
+    public List<SubBranch> splitGraph(int sizeToFix){
+        List<Set<IntVar>> subgraphs = this.findConnectedComponents();
+        List<SubBranch> subBranches = new ArrayList<>();
+        if (subgraphs.size() > 1 ){
+            for (Set<IntVar> s : subgraphs){
+                subBranches.add(new SubBranch(s,s.size() <= sizeToFix ));
+            }
+            return subBranches;
+        }
+        return null;
+    }
+
+
     public void removeNode(IntVar nodeToRemove) {
         this.removedNodes.add(nodeToRemove);
     }
