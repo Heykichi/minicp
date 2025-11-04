@@ -163,8 +163,10 @@ public class AND_DFSearch_partial_solution {
 
         int n_Solutions = 0;
         if (branch.getVariables() != null && !branch.getVariables().isEmpty()) {
+            //System.out.println("OR");
             n_Solutions = processOrBranch(branch, statistics, parentId, position, andLevel, solutionLimit);
         } else if (branch.getBranches() != null && !branch.getBranches().isEmpty()){
+            System.out.println("AND");
             n_Solutions = processAndBranch(branch, statistics, parentId, position, andLevel, solutionLimit);
         } else {
             throw new IllegalArgumentException("No branch available");

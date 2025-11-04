@@ -6,6 +6,7 @@ import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.util.io.InputReader;
 
+import java.sql.SQLOutput;
 import java.util.*;
 
 import static minicp.ANDOR_testing.GreedyPartitioning.findBalancedSeparator;
@@ -17,7 +18,7 @@ public class separatorTest {
     /* ===== tiny sanity demo ===== */
     public static void main(String[] args) {
 
-        InputReader reader1 = new InputReader("data/world/countries.txt");
+        InputReader reader1 = new InputReader("data/graph_coloring/world/countries.txt");
 
         Map<Integer, String> countriesNames = new HashMap<>();
         try {
@@ -31,7 +32,7 @@ public class separatorTest {
         Solver cp = Factory.makeANDSolver(false);
         IntVar[] countriesVars = Factory.makeIntVarArray(cp, countriesNames.size(), 4);
 
-        InputReader reader2 = new InputReader("data/world/countries_neighbor.txt");
+        InputReader reader2 = new InputReader("data/graph_coloring/world/countries_neighbor.txt");
 
         try {
             while (true) {
@@ -51,17 +52,14 @@ public class separatorTest {
         }
         variables = graph.getUnfixedVariables();
 
+        Set<IntVar>[] cut = findBalancedSeparator(graph);
 
-        Set<IntVar> cut = fiducciaMattheysesCut(graph);
 
-
-        graph.removeNode(cut);
+        graph.removeNode(cut[0]);
         List<Set<IntVar>> end = new ArrayList<>();
-        end.add(cut);
+        end.add(cut[0]);
         end.addAll(graph.findConnectedComponents());
-        for (Set<IntVar> set : end) {
-            System.out.println(set.size());
-        }
+
         System.out.println("=====");
         int color = 1;
         for (Set<IntVar> set : end) {

@@ -16,7 +16,7 @@ import static minicp.ANDOR_engine.AND_Scheme.*;
 
 public class AND_MapColoring_France {
     public static void main(String[] args) {
-        InputReader reader1 = new InputReader("data/france/departments.txt");
+        InputReader reader1 = new InputReader("data/graph_coloring/france/departments.txt");
 
         Map<String, String> names = new HashMap<>();
         try {
@@ -31,7 +31,7 @@ public class AND_MapColoring_France {
         Solver cp = Factory.makeANDSolver(false);
         IntVar[] vars = Factory.makeIntVarArray(cp, names.size(), 4);
 
-        InputReader reader2 = new InputReader("data/france/neighbors.txt");
+        InputReader reader2 = new InputReader("data/graph_coloring/france/neighbors.txt");
 
         try {
             while (true) {

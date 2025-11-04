@@ -19,7 +19,6 @@ public class OR_Base_Problem {
         IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
 
         IntVar Y = Factory.makeIntVar(cp,4);
-
         //Y.fix(3);
 
         cp.post(Factory.sum(X, Y));

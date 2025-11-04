@@ -23,15 +23,7 @@ public class AND_example2 {
 
         cp.post(Factory.equal(X[0], Z[0]));
 
-        //System.out.println(cp.getGraph().toString());
-
-        // Branch(IntVar[] variables, Branch[] branches, boolean rebranching)
-        // we fix variables, then branches. If rebranching == true, we call rebranching (in series for an OR branch or in parallel for an AND branch)
-        // only one rebranching is possible to avoid searching for a node multiple times
-
-        // the branching must return a branch.
-        // In the case of AND branches, variables assigned to subbranches must be removed (graph.removeNode(Intvar v) or graph.removeNode(Intvar[] v)).
-        //
+        
         AND_DFSearch search = Factory.makeAND_Dfs(cp, naiveTreeBuilding(cp,1,5));
 
         search.setBranching(firstFail());

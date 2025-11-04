@@ -117,7 +117,7 @@ public class IntVarImpl implements IntVar {
 
     @Override
     public int getId() {
-        return this.id;  // Ne change jamais
+        return this.id;
     }
 
     @Override

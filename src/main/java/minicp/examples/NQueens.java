@@ -35,7 +35,7 @@ import static minicp.cp.Factory.plus;
  */
 public class NQueens {
     public static void main(String[] args) {
-        int n = 4;
+        int n = 14;
         Solver cp = Factory.makeSolver(false);
         IntVar[] q = Factory.makeIntVarArray(cp, n, n);
 
@@ -72,11 +72,15 @@ public class NQueens {
             }
         });
 
-        search.onSolution(() ->
-                System.out.println("solution:" + Arrays.toString(q))
-        );
-        SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 1000);
+//        search.onSolution(() ->
+//                System.out.println("solution:" + Arrays.toString(q))
+//        );
 
+        long debut = System.nanoTime();
+        SearchStatistics stats = search.solve();
+        long fin = System.nanoTime();
+
+        System.out.format("\nExecution time : %s ms\n", (fin - debut) / 1_000_000);
         //search.showTree("NQUEENS");
 
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
