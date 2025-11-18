@@ -38,7 +38,7 @@ public class DFSearch {
     private List<DFSListener> dfsListeners = new LinkedList<DFSListener>();
 
 
-    private int currNodeIdId;
+    private int currNodeId;
 
     /**
      * Creates a Depth First Search object with a given branching
@@ -108,7 +108,7 @@ public class DFSearch {
     }
 
     private SearchStatistics solve(SearchStatistics statistics, Predicate<SearchStatistics> limit) {
-        currNodeIdId = 0;
+        currNodeId = 0;
         sm.withNewState(() -> {
             try {
                 dfs(statistics, limit , -1, -1);
@@ -242,7 +242,7 @@ public class DFSearch {
         if (limit.test(statistics))
             throw new StopSearchException();
         Procedure[] branches = branching.get();
-        final int nodeId = currNodeIdId++;
+        final int nodeId = currNodeId++;
 
         if (branches.length == 0) {
             statistics.incrSolutions();
@@ -258,7 +258,7 @@ public class DFSearch {
                         b.call();
                         dfs(statistics, limit, nodeId, p);
                     } catch (InconsistencyException e) {
-                        currNodeIdId++;
+                        currNodeId++;
                         statistics.incrFailures();
                         notifyFailure(parentId,nodeId, p);
                     }
