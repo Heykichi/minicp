@@ -44,7 +44,7 @@ public class AND_DFSearch {
 
     private List<DFSListener> dfsListeners = new LinkedList<DFSListener>();
 
-    private int currNodeIdId;
+    private int currNodeId;
 
     private boolean complete = true;
 
@@ -135,7 +135,7 @@ public class AND_DFSearch {
     }
 
     private SearchStatistics solve( SearchStatistics statistics, int solutionsLimit, boolean showSolutions) {
-        currNodeIdId = 0;
+        currNodeId = 0;
         sm.withNewState(() -> {
             try {
                 long debut = System.nanoTime();
@@ -244,7 +244,7 @@ public class AND_DFSearch {
     }
 
     private SlicedTable processAndBranch(Branch branch, SearchStatistics statistics, int parentId, int position, int solutionLimit){
-        final int nodeId = currNodeIdId++;
+        final int nodeId = currNodeId++;
         int pos = 0;
         List<List<SlicedTable>> subSolutions = new ArrayList<>();
         AtomicReference<Boolean> breaking = new AtomicReference<>(false);
@@ -274,7 +274,7 @@ public class AND_DFSearch {
     }
 
     private List<SlicedTable> processOrBranch(Branch branch, SearchStatistics statistics, int parentId, int position, int solutionLimit){
-        final int nodeId = currNodeIdId++;
+        final int nodeId = currNodeId++;
         Procedure[] branches = new Procedure[0];
         if (branch.getVariables() != null){
             branches = this.branching.apply(branch.getVariables());
@@ -313,7 +313,7 @@ public class AND_DFSearch {
                         List<SlicedTable> get = processOrBranch(branch,statistics, nodeId, p, solutionLimit);
                         solutions.addAll(get);
                     } catch (InconsistencyException e) {
-                        currNodeIdId++;
+                        currNodeId++;
                         statistics.incrFailures();
                         notifyFailure(parentId,nodeId, p);
                     }

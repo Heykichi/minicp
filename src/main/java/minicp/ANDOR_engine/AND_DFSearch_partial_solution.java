@@ -42,7 +42,7 @@ public class AND_DFSearch_partial_solution {
 
     private List<DFSListener> dfsListeners = new LinkedList<DFSListener>();
 
-    private int currNodeIdId;
+    private int currNodeId;
     private boolean showSolutions;
     private boolean complete = true;
 
@@ -116,7 +116,7 @@ public class AND_DFSearch_partial_solution {
     }
 
     public SearchStatistics solve(SearchStatistics statistics, int solutionLimit, boolean showSolutions) {
-        currNodeIdId = 0;
+        currNodeId = 0;
         this.showSolutions = showSolutions;
         sm.withNewState(() -> {
             try {
@@ -175,7 +175,7 @@ public class AND_DFSearch_partial_solution {
     }
 
     private int processAndBranch(Branch branch, SearchStatistics statistics, int parentId, int position, int andLevel, int solutionLimit){
-        final int nodeId = currNodeIdId++;
+        final int nodeId = currNodeId++;
         if (this.showSolutions) System.out.println("AND branch of depth "+andLevel+" =================================================");
         if (this.showSolutions) notifySolution(parentId,nodeId, position);
         int pos = 0;
@@ -210,7 +210,7 @@ public class AND_DFSearch_partial_solution {
     }
 
     private int processOrBranch(Branch branch, SearchStatistics statistics, int parentId, int position, int andLevel, int solutionLimit){
-        final int nodeId = currNodeIdId++;
+        final int nodeId = currNodeId++;
         Procedure[] branches = new Procedure[0];
         if (branch.getVariables() != null){
             branches = this.branching.apply(branch.getVariables());
@@ -243,7 +243,7 @@ public class AND_DFSearch_partial_solution {
                         nSolutions[0] += processOrBranch(branch,statistics, nodeId, p, andLevel, solutionLimit-nSolutions[0]);
 
                     } catch (InconsistencyException e) {
-                        currNodeIdId++;
+                        currNodeId++;
                         statistics.incrFailures();
                         notifyFailure(parentId,nodeId, p);
                     }
