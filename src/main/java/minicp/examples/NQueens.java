@@ -49,28 +49,11 @@ public class NQueens {
                 // alternative modeling using views
                 // cp.post(notEqual(plus(q[i], j - i), q[j]));
                 // cp.post(notEqual(minus(q[i], j - i), q[j]));
-
             }
 
 
 
-        DFSearch search = Factory.makeDfs(cp, () -> {
-            int idx = -1; // index of the first variable that is not fixed
-            for (int k = 0; k < q.length; k++)
-                if (q[k].size() > 1) {
-                    idx = k;
-                    break;
-                }
-            if (idx == -1)
-                return new Procedure[0];
-            else {
-                IntVar qi = q[idx];
-                int v = qi.min();
-                Procedure left = () -> cp.post(Factory.equal(qi, v));
-                Procedure right = () -> cp.post(Factory.notEqual(qi, v));
-                return new Procedure[]{left, right};
-            }
-        });
+        DFSearch search = Factory.makeDfs(cp, firstFail(q));
 
 //        search.onSolution(() ->
 //                System.out.println("solution:" + Arrays.toString(q))
@@ -79,11 +62,11 @@ public class NQueens {
         long debut = System.nanoTime();
         SearchStatistics stats = search.solve();
         long fin = System.nanoTime();
-
+        System.out.print("MiniCP 14-Queens, firstFail");
         System.out.format("\nExecution time : %s ms\n", (fin - debut) / 1_000_000);
         //search.showTree("NQUEENS");
 
-        System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
+        //System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);
 
     }
