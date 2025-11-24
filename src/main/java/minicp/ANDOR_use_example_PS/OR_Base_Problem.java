@@ -14,11 +14,11 @@ public class OR_Base_Problem {
 
         Solver cp = Factory.makeSolver(false);
         
-        int index = 15;
-        IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
-        IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
+        int index = 3;
+        IntVar[] X = Factory.makeIntVarArray(cp, index, 5);
+        IntVar[] Z = Factory.makeIntVarArray(cp, index, 5);
 
-        IntVar Y = Factory.makeIntVar(cp,4);
+        IntVar Y = Factory.makeIntVar(cp,5);
 
         //Y.fix(3);
 

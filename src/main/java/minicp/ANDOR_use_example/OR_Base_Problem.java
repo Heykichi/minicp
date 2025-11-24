@@ -7,6 +7,8 @@ import minicp.search.DFSearch;
 import minicp.search.SearchStatistics;
 import minicp.util.Procedure;
 
+import java.util.Arrays;
+
 import static minicp.ANDOR_use_example.AND_example1_1.printSum;
 
 public class OR_Base_Problem {
@@ -14,11 +16,11 @@ public class OR_Base_Problem {
 
         Solver cp = Factory.makeSolver(false);
         
-        int index = 4;
-        IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
-        IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
+        int index = 3;
+        IntVar[] X = Factory.makeIntVarArray(cp, index, 5);
+        IntVar[] Z = Factory.makeIntVarArray(cp, index, 5);
 
-        IntVar Y = Factory.makeIntVar(cp,4);
+        IntVar Y = Factory.makeIntVar(cp,6);
         //Y.fix(3);
 
         cp.post(Factory.sum(X, Y));
@@ -51,7 +53,7 @@ public class OR_Base_Problem {
         });
 
         search.onSolution(() -> {
-
+            java.lang.System.out.println(Arrays.toString(X)+ " = " + Arrays.toString(Z) + "=> "+ Y);
         });
 
         long debut = System.nanoTime();

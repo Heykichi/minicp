@@ -284,7 +284,7 @@ public class AND_DFSearch {
         List<SlicedTable> solutions = new ArrayList<>();
         if (branches.length == 0) {
             // SOLUTION
-            if (cp.getGraphWithStart().solutionFound()){
+            if (cp.getGraphWithStart().solutionFound()){ // todo check with need newstate
                 solutions.add(new SlicedTable(getPattern()));
                 return solutions;
             } else if (branch.getBranches() == null || branch.getBranches().isEmpty()){

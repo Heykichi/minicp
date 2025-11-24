@@ -14,10 +14,10 @@ public class AND_PS_example1_1 {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeANDSolver(false);
-        int index = 2;
-        IntVar[] X = Factory.makeIntVarArray(cp, index, 4);
-        IntVar[] Z = Factory.makeIntVarArray(cp, index, 4);
-        IntVar Y = Factory.makeIntVar(cp, 4);
+        int index = 3;
+        IntVar[] X = Factory.makeIntVarArray(cp, index, 5);
+        IntVar[] Z = Factory.makeIntVarArray(cp, index, 5);
+        IntVar Y = Factory.makeIntVar(cp, 6);
 
         cp.post(Factory.sum(X, Y));
         cp.post(Factory.sum(Z, Y));
@@ -35,14 +35,7 @@ public class AND_PS_example1_1 {
 
         search.setBranching(firstFail());
 
-        search.onSolution(() -> {
-            System.out.print("1) ");
-            printSum(X, Y);
-
-            System.out.print("2) ");
-            printSum(Z, Y);
-            System.out.println();
-        });
+        search.onSolution(() -> {});
 
         long debut = System.nanoTime();
         SearchStatistics stats = search.solve(2000000, true);

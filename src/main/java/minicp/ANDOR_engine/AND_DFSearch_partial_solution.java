@@ -219,7 +219,7 @@ public class AND_DFSearch_partial_solution {
         int pos = 0;
         if (branches.length == 0) {
             if (this.showSolutions) System.out.println();
-            if (cp.getGraphWithStart().solutionFound()){
+            if (cp.getGraphWithStart().solutionFound()){ // todo check with need newstate
                 if (this.showSolutions) notifySolution(parentId,nodeId, position);
                 return 1;
             } else if (branch.getBranches() == null ){
