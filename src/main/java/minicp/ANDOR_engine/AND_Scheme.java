@@ -29,7 +29,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static minicp.ANDOR_testing.GreedyPartitioning.findBalancedSeparator;
-import static minicp.ANDOR_testing.balancedGraphPartitioning.fiducciaMattheysesCut;
+import static minicp.ANDOR_testing.FiducciaMattheysesCut.fiducciaMattheysesCut;
 import static minicp.cp.Factory.equal;
 import static minicp.cp.Factory.notEqual;
 
@@ -168,8 +168,12 @@ public class AND_Scheme {
         };
     }
 
-    public static Supplier<Branch> fiducciaMattheyses(Solver cp, int sizeToFix){
-        boolean[] firstCall = {true};
+    public static Supplier<Branch> fiducciaMattheyses(Solver cp, int sizeToFix) {
+        return fiducciaMattheyses(cp, sizeToFix, false);
+    }
+
+    public static Supplier<Branch> fiducciaMattheyses(Solver cp, int sizeToFix, boolean splitFirst){
+        boolean[] firstCall = {splitFirst};
         return () -> {
             if (firstCall[0]) {
                 firstCall[0] = false;

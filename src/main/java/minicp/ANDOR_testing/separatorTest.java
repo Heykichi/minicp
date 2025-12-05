@@ -5,12 +5,13 @@ import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.util.io.InputReader;
+import minicp.ANDOR_testing.FiducciaMattheysesCut;
 
-import java.sql.SQLOutput;
+
 import java.util.*;
 
+import static minicp.ANDOR_testing.FiducciaMattheysesCut.fiducciaMattheysesCut;
 import static minicp.ANDOR_testing.GreedyPartitioning.findBalancedSeparator;
-import static minicp.ANDOR_testing.balancedGraphPartitioning.*;
 
 
 /** Undirected, unweighted graph — iterative Tarjan articulation-point splitter. */
@@ -52,12 +53,13 @@ public class separatorTest {
         }
         variables = graph.getUnfixedVariables();
 
-        Set<IntVar>[] cut = findBalancedSeparator(graph);
+//        Set<IntVar>[] cut = findBalancedSeparator(graph);
+        Set<IntVar> cut = fiducciaMattheysesCut(graph);
 
 
-        graph.removeNode(cut[0]);
+        graph.removeNode(cut);
         List<Set<IntVar>> end = new ArrayList<>();
-        end.add(cut[0]);
+        end.add(cut);
         end.addAll(graph.findConnectedComponents());
 
         System.out.println("=====");
