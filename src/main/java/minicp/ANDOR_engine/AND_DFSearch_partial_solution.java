@@ -121,7 +121,7 @@ public class AND_DFSearch_partial_solution {
         sm.withNewState(() -> {
             try {
                 int nSolutions = dfs(statistics, -1, -1, 0, solutionLimit);
-                statistics.incrSolutions(nSolutions);
+                if (nSolutions >= 0 ) statistics.incrSolutions(nSolutions);
                 if (this.complete) statistics.setCompleted();
             } catch (StopSearchException ignored) {
             } catch (StackOverflowError e) {
@@ -189,8 +189,11 @@ public class AND_DFSearch_partial_solution {
             sm.withNewState(() -> {
                 this.cp.getGraphWithStart().newState(B.getVariables());
                 int solution = 1;
-                int limit = (solutionLimit/nSolutions[0]) + 1;
-                if (nSolutions[0] >= solutionLimit){
+                int limit = solutionLimit;
+                if (nSolutions[0] > 1) {
+                    limit = (solutionLimit / nSolutions[0]) + 1;
+                }
+                if (nSolutions[0] >= solutionLimit) {
                     limit = 1;
                 }
                 if (B.getToFix()) {

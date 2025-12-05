@@ -175,8 +175,8 @@ public class AND_DFSearch {
                         }
                     }
                 } else {
-                    int nSolution = computeSolution(solutions, solutionsLimit);
-                    statistics.incrSolutions(nSolution);
+                    int nSolutions = computeSolution(solutions, solutionsLimit);
+                    if (nSolutions >= 0 ) statistics.incrSolutions(nSolutions);
                 }
 
                 if (this.complete) statistics.setCompleted();
