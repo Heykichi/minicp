@@ -33,9 +33,9 @@ public class MapColoring {
 
         try {
             while (true) {
-                Integer[] neighbor = reader2.getIntLine();
-                for (int k = 1; k < neighbor.length; k++) {
-                    cp.post(Factory.allDifferent(new IntVar[]{countriesVars[neighbor[0]], countriesVars[neighbor[k]]}));
+                Integer[] neighbors = reader2.getIntLine();
+                for (int k = 1; k < neighbors.length; k++) {
+                    cp.post(Factory.allDifferent(new IntVar[]{countriesVars[neighbors[0]], countriesVars[neighbors[k]]}));
                 }
             }
         } catch (RuntimeException e) {}
@@ -52,11 +52,10 @@ public class MapColoring {
         });
         // https://paintmaps.com/map-charts/293/World-map-chart
         long debut = System.nanoTime();
-        SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 2792448);
+        SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 100000000);
         long fin = System.nanoTime();
 
         System.out.format("\nExecution time : %s ms\n", (fin - debut) / 1_000_000);
-        System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);
 
     }

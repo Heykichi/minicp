@@ -36,8 +36,8 @@ public class FiducciaMattheysesCut {
             gainA.clear();
             gainB.clear();
 
-            addGain(graph, partB, partA, gainA);
-            addGain(graph, partA, partB, gainB);
+            addGain(graph, partA, partB, gainA);
+            addGain(graph, partB, partA, gainB);
             // Find max gain node in A and B
             IntVar bestA = argMaxByValue(gainA);
             IntVar bestB = argMaxByValue(gainB);
@@ -71,8 +71,7 @@ public class FiducciaMattheysesCut {
         Set<IntVar> cutNodes = new HashSet<>();
         for (IntVar node : nodes) {
             for (IntVar neighbor : graph.getUnfixedNeighbors(node)) {
-                if ((partA.contains(node) && partB.contains(neighbor)) ||
-                        (partB.contains(node) && partA.contains(neighbor))) {
+                if ((partB.contains(node) && partA.contains(neighbor))) {
                     cutNodes.add(node);
                     break;
                 }
@@ -81,14 +80,15 @@ public class FiducciaMattheysesCut {
         return cutNodes;
     }
 
-    private static void addGain(ConstraintGraph graph, Set<IntVar> partA, Set<IntVar> partB, Map<IntVar, Integer> gainB) {
-        for (IntVar node : partB) {
+    private static void addGain(ConstraintGraph graph, Set<IntVar> from, Set<IntVar> to,  Map<IntVar, Integer> gain) {
+        gain.clear();
+        for (IntVar node : from) {
             int ext = 0, inter = 0;
             for (IntVar neighbor : graph.getUnfixedNeighbors(node)) {
-                if (partA.contains(neighbor)) ext++;
-                else if (partB.contains(neighbor)) inter++;
+                if (to.contains(neighbor)) ext++;
+                else if (from.contains(neighbor)) inter++;
             }
-            gainB.put(node, ext - inter);
+            gain.put(node, ext - inter);
         }
     }
 

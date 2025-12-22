@@ -15,6 +15,7 @@
 
 package minicp.ANDOR_engine;
 
+import minicp.ANDOR_testing.BalancedVertexSeparatorCut;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;

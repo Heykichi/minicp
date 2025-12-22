@@ -6,38 +6,41 @@ import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.util.io.InputReader;
 
-
 import java.util.*;
 
 import static minicp.ANDOR_testing.FiducciaMattheysesCut.fiducciaMattheysesCut;
 
 
 /** Undirected, unweighted graph — iterative Tarjan articulation-point splitter. */
-public class separatorTest {
+public class separatorTestFrance {
     /* ===== tiny sanity demo ===== */
     public static void main(String[] args) {
 
-        InputReader reader1 = new InputReader("data/graph_coloring/world/countries.txt");
+        InputReader reader1 = new InputReader("data/graph_coloring/france/departments.txt");
 
-        Map<Integer, String> countriesNames = new HashMap<>();
+        Map<String, String> names = new HashMap<>();
         try {
             while (true) {
                 String name = reader1.getString();
-                int code = reader1.getInt();
-                countriesNames.put(code, name);
+                String code = reader1.getString();
+                names.put(code, name);
             }
         } catch (RuntimeException e) {}
 
+        List<String> index = new ArrayList<>(names.keySet());
+
         Solver cp = Factory.makeANDSolver(false);
-        IntVar[] countriesVars = Factory.makeIntVarArray(cp, countriesNames.size(), 4);
+        IntVar[] vars = Factory.makeIntVarArray(cp, names.size(), 4);
 
-        InputReader reader2 = new InputReader("data/graph_coloring/world/countries_neighbor.txt");
 
+        InputReader reader2 = new InputReader("data/graph_coloring/france/neighbors.txt");
         try {
             while (true) {
-                Integer[] neighbor = reader2.getIntLine();
-                for (int k = 1; k < neighbor.length; k++) {
-                    cp.post(Factory.allDifferent(new IntVar[]{countriesVars[neighbor[0]], countriesVars[neighbor[k]]}));
+                String input = reader2.getString();
+                String[] parts = input.split(":");
+                String[] neighbors = parts[1].split(",");
+                for (String neighbor : neighbors) {
+                    cp.post(Factory.allDifferent(new IntVar[]{vars[index.indexOf(parts[0])], vars[index.indexOf(neighbor)]}));
                 }
             }
         } catch (RuntimeException e) {}
@@ -49,12 +52,16 @@ public class separatorTest {
                 graph.removeNode(v);
             }
         }
-        variables = graph.getUnfixedVariables();
 
 //        Set<IntVar>[] cut = findBalancedSeparator(graph);
 
         Set<IntVar> cut = fiducciaMattheysesCut(graph);
 
+        System.out.println(cut.size());
+
+        for (IntVar v : cut) {
+            System.out.println(v.getId());
+        }
 
         graph.removeNode(cut);
         List<Set<IntVar>> end = new ArrayList<>();
@@ -65,7 +72,7 @@ public class separatorTest {
         int color = 1;
         for (Set<IntVar> set : end) {
             for (IntVar v : set) {
-                System.out.println(countriesNames.get(v.getId()) + " " + color);
+                System.out.println(names.get(index.get(v.getId())) + " " + color);
             }
             color++;
         }

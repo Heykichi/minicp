@@ -167,7 +167,7 @@ public class AND_DFSearch {
                                 }
                             }
                             notifySolution();
-                            System.out.println();
+                            //System.out.println();
                         });
                         n_solutions++;
                         if (n_solutions >= solutionsLimit) {
