@@ -47,6 +47,8 @@ public class AND_DFSearch {
     private int currNodeId;
 
     private boolean complete = true;
+    private boolean showSolutions = false;
+    private boolean computeSolutions = true;
 
     /**
      * Creates a Depth First Search object with a given branching
@@ -117,24 +119,8 @@ public class AND_DFSearch {
         dfsListeners.forEach(l -> l.branch(parentId, nodeId, position, nChilds));
     }
 
-    private int computeSolution(List<SlicedTable> solutions, int solutionsLimit){
-        int nSolution = 0;
-        for (SlicedTable sol : solutions) {
-            int n = 1;
-            for (List<SlicedTable> s : sol.getSubSlicedTables()){
-                int a =computeSolution(s, solutionsLimit/n);
-                if (a > solutionsLimit) {
-                    a = solutionsLimit;
-                    break;
-                }
-                n *= a;
-            }
-            nSolution += n;
-        }
-        return nSolution;
-    }
-
     private SearchStatistics solve( SearchStatistics statistics, int solutionsLimit, boolean showSolutions) {
+        this.showSolutions = showSolutions;
         currNodeId = 0;
         sm.withNewState(() -> {
             try {
@@ -142,41 +128,17 @@ public class AND_DFSearch {
                 Solutions solutions = dfs(statistics, -1, -1, solutionsLimit);
                 long fin1 = System.nanoTime();
                 List<SlicedTable> slicedTables = solutions.slicedTables;
+                long debut2 = System.nanoTime();
                 if (!slicedTables.isEmpty()) {
-                    long debut2 = System.nanoTime();
                     statistics.setSlicedTables(slicedTables);
-
-                    List<Map<Integer, Integer>> listSolutions = computeSlicedTable(slicedTables, solutionsLimit);
-                    statistics.setSolutions(listSolutions);
-                    if (solutions.nSolutions >= 0) statistics.incrSolutions(solutions.nSolutions);
-
-                    Set<IntVar> vars = this.cp.getGraphWithStart().getStateVariables();
-
-                    int n_solutions = 0;
-                    for (Map<Integer, Integer> sol : listSolutions) {
-                        if (vars.size() != sol.size())
-                            throw new RuntimeException("Missing value in a solution, " + vars.size() + " != " + sol.size());
-                        sm.withNewState(() -> {
-                            for (IntVar var : vars) {
-                                if (sol.containsKey(var.getId())) {
-                                    int value = sol.get(var.getId());
-                                    var.fix(value);
-                                } else {
-                                    throw new RuntimeException("no solution for " + var.getId());
-                                }
-                            }
-                            notifySolution();
-                            //System.out.println();
-                        });
-                        n_solutions++;
-                        if (n_solutions >= solutionsLimit) {
-                            break;
-                        }
+                    if (computeSolutions) {
+                        processSolutions(statistics, solutions, slicedTables, solutionsLimit);
                     }
-                    long fin2 = System.nanoTime();
-                    System.out.format("\nSearch time : %s ms", (fin1 - debut1) / 1_000_000);
-                    System.out.format("\nComputation time : %s ms\n", (fin2 - debut2) / 1_000_000);
                 }
+                long fin2 = System.nanoTime();
+                System.out.format("\nSearch time : %s ms", (fin1 - debut1) / 1_000_000);
+                System.out.format("\nComputation time : %s ms\n", (fin2 - debut2) / 1_000_000);
+
                 if (this.complete) statistics.setCompleted();
             } catch (StopSearchException ignored) {
             } catch (StackOverflowError e) {
@@ -184,6 +146,41 @@ public class AND_DFSearch {
             }
         });
         return statistics;
+    }
+
+    private void processSolutions(SearchStatistics statistics, Solutions solutions, List<SlicedTable> slicedTables, int solutionsLimit) {
+        List<Map<Integer, Integer>> listSolutions = computeSlicedTable(slicedTables, solutionsLimit);
+        statistics.setSolutions(listSolutions);
+        if (solutions.nSolutions >= 0) statistics.incrSolutions(solutions.nSolutions);
+        if (showSolutions){
+            Set<IntVar> vars = this.cp.getGraphWithStart().getStateVariables();
+            int n_solutions = 0;
+            for (Map<Integer, Integer> sol : listSolutions) {
+                if (vars.size() != sol.size())
+                    throw new RuntimeException("Missing value in a solution, " + vars.size() + " != " + sol.size());
+                sm.withNewState(() -> {
+                    for (IntVar var : vars) {
+                        if (sol.containsKey(var.getId())) {
+                            int value = sol.get(var.getId());
+                            var.fix(value);
+                        } else {
+                            throw new RuntimeException("no solution for " + var.getId());
+                        }
+                    }
+                    notifySolution();
+                });
+                n_solutions++;
+                if (n_solutions >= solutionsLimit) {
+                    break;
+                }
+            }
+        }
+    }
+
+    public SearchStatistics solve(int solutionsLimit, boolean showSolutions, boolean computeSolutions) {
+        SearchStatistics statistics = new SearchStatistics();
+        this.computeSolutions = computeSolutions;
+        return solve(statistics, solutionsLimit, showSolutions);
     }
 
     public SearchStatistics solve(int solutionsLimit, boolean showSolutions) {
