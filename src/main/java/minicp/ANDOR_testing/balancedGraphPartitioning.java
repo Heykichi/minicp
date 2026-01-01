@@ -75,8 +75,7 @@ public class balancedGraphPartitioning {
         Set<IntVar> cutNodes = new HashSet<>();
         for (IntVar node : nodes) {
             for (IntVar neighbor : graph.getUnfixedNeighbors(node)) {
-                if ((partA.contains(node) && partB.contains(neighbor)) ||
-                        (partB.contains(node) && partA.contains(neighbor))) {
+                if ((partB.contains(node) && partA.contains(neighbor))) {
                     cutNodes.add(node);
                     break;
                 }

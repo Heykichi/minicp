@@ -52,21 +52,21 @@ public class separatorTest {
         }
         variables = graph.getUnfixedVariables();
 
-        Set<IntVar>[] cut = findBalancedSeparator(graph);
+        Set<IntVar> cut = fiducciaMattheysesCut(graph);
 
-
-        graph.removeNode(cut[0]);
+        graph.removeNode(cut);
         List<Set<IntVar>> end = new ArrayList<>();
-        end.add(cut[0]);
+        end.add(cut);
         end.addAll(graph.findConnectedComponents());
 
         System.out.println("=====");
+        System.out.println(cut.size());
         int color = 1;
         for (Set<IntVar> set : end) {
             for (IntVar v : set) {
                 System.out.println(countriesNames.get(v.getId()) + " " + color);
             }
-            color++;
+            color = 2;
         }
 
         System.out.println(end.size());
