@@ -32,6 +32,7 @@ public class SearchStatistics {
     private int nNodes = 0;
     private int nSolutions = 0;
     private boolean completed = false;
+    private int nAndNodes = 0;
     private List<Map<Integer, Integer>> solutions = null;
     private List<SlicedTable> slicedTables = null;
 
@@ -39,6 +40,7 @@ public class SearchStatistics {
         return "\n\t#choice: " + nNodes
                 + "\n\t#fail: " + nFailures
                 + "\n\t#sols : " + nSolutions
+                + "\n\t#And nodes : " + nAndNodes
                 + "\n\tcompleted : " + completed + "\n";
     }
 
@@ -56,6 +58,10 @@ public class SearchStatistics {
 
     public void incrSolutions(int n) {
         nSolutions += n;
+    }
+
+    public void incrAndNodes() {
+        nAndNodes ++;
     }
 
     public void setCompleted() {

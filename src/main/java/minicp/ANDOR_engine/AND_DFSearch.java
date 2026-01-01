@@ -138,25 +138,24 @@ public class AND_DFSearch {
         currNodeId = 0;
         sm.withNewState(() -> {
             try {
-                long debut = System.nanoTime();
-                List<SlicedTable> solutions = dfs(statistics, -1, -1, solutionsLimit);
-                long fin = System.nanoTime();
-                System.out.format("\nDFS execution time : %s ms\n", (fin - debut) / 1_000_000);
+                long debut1 = System.nanoTime();
+                Solutions solutions = dfs(statistics, -1, -1, solutionsLimit);
+                long fin1 = System.nanoTime();
+                List<SlicedTable> slicedTables = solutions.slicedTables;
+                if (!slicedTables.isEmpty()) {
+                    long debut2 = System.nanoTime();
+                    statistics.setSlicedTables(slicedTables);
 
-                if (solutions.isEmpty()) {
-                    throw new RuntimeException("No solution found");
-                }
-                statistics.setSlicedTables(solutions);
-                if (showSolutions){
-                    List<Map<Integer, Integer>> listSolutions = computeSlicedTable(solutions,solutionsLimit);
+                    List<Map<Integer, Integer>> listSolutions = computeSlicedTable(slicedTables, solutionsLimit);
                     statistics.setSolutions(listSolutions);
-                    statistics.incrSolutions(listSolutions.size());
+                    if (solutions.nSolutions >= 0) statistics.incrSolutions(solutions.nSolutions);
 
                     Set<IntVar> vars = this.cp.getGraphWithStart().getStateVariables();
 
                     int n_solutions = 0;
                     for (Map<Integer, Integer> sol : listSolutions) {
-                        if (vars.size() != sol.size())  throw new RuntimeException("Missing value in a solution, " + vars.size() + " != " + sol.size());
+                        if (vars.size() != sol.size())
+                            throw new RuntimeException("Missing value in a solution, " + vars.size() + " != " + sol.size());
                         sm.withNewState(() -> {
                             for (IntVar var : vars) {
                                 if (sol.containsKey(var.getId())) {
@@ -174,11 +173,10 @@ public class AND_DFSearch {
                             break;
                         }
                     }
-                } else {
-                    int nSolutions = computeSolution(solutions, solutionsLimit);
-                    if (nSolutions >= 0 ) statistics.incrSolutions(nSolutions);
+                    long fin2 = System.nanoTime();
+                    System.out.format("\nSearch time : %s ms", (fin1 - debut1) / 1_000_000);
+                    System.out.format("\nComputation time : %s ms\n", (fin2 - debut2) / 1_000_000);
                 }
-
                 if (this.complete) statistics.setCompleted();
             } catch (StopSearchException ignored) {
             } catch (StackOverflowError e) {
@@ -188,14 +186,14 @@ public class AND_DFSearch {
         return statistics;
     }
 
-    public SearchStatistics solve(int solutionLimit, boolean showSolutions) {
+    public SearchStatistics solve(int solutionsLimit, boolean showSolutions) {
         SearchStatistics statistics = new SearchStatistics();
-        return solve(statistics, solutionLimit, showSolutions);
+        return solve(statistics, solutionsLimit, showSolutions);
     }
 
-    public SearchStatistics solve(int solutionLimit) {
+    public SearchStatistics solve(int solutionsLimit) {
         SearchStatistics statistics = new SearchStatistics();
-        return solve(statistics, solutionLimit, true);
+        return solve(statistics, solutionsLimit, true);
     }
 
     public SearchStatistics solve(boolean showSolutions) {
@@ -219,7 +217,9 @@ public class AND_DFSearch {
         return pattern;
     }
 
-    private List<SlicedTable> dfs(SearchStatistics statistics, int parentId, int position, int solutionLimit) {
+    public record Solutions(int nSolutions, List<SlicedTable> slicedTables) {}
+
+    private Solutions dfs(SearchStatistics statistics, int parentId, int position, int solutionsLimit) {
         Objects.requireNonNull(this.branching, "No branching instruction");
         Objects.requireNonNull(this.treeBuilding, "No tree building instruction");
 
@@ -228,39 +228,48 @@ public class AND_DFSearch {
             throw new RuntimeException("treeBuilding doesn't give any proposition");
         }
 
-        List<SlicedTable> solutions;
+        Solutions solutions;
         if (branch.getVariables() != null && !branch.getVariables().isEmpty()) {
 //            System.out.println("OR");
-            solutions = processOrBranch(branch, statistics, parentId, position, solutionLimit);
+            solutions = processOrBranch(branch, statistics, parentId, position, solutionsLimit);
         } else if (branch.getBranches() != null && !branch.getBranches().isEmpty()){
 //            System.out.println("AND");
-            solutions = new ArrayList<>();
-            SlicedTable end = processAndBranch(branch, statistics, parentId, position, solutionLimit);
-            if (end != null) solutions.add(end);
+            solutions = processAndBranch(branch, statistics, parentId, position, solutionsLimit);
         } else {
             throw new IllegalArgumentException("No branch available");
         }
         return solutions;
     }
 
-    private SlicedTable processAndBranch(Branch branch, SearchStatistics statistics, int parentId, int position, int solutionLimit){
+    private Solutions processAndBranch(Branch branch, SearchStatistics statistics, int parentId, int position, int solutionsLimit){
+        statistics.incrAndNodes();
         final int nodeId = currNodeId++;
         int pos = 0;
+        final int[] nSolutions = {1};
         List<List<SlicedTable>> subSolutions = new ArrayList<>();
         AtomicReference<Boolean> breaking = new AtomicReference<>(false);
         for (SubBranch B : branch.getBranches()) {
             final int p = pos;
             sm.withNewState(() -> {
                 this.cp.getGraphWithStart().newState(B.getVariables());
-                List<SlicedTable> get ;
+                Solutions newST ;
+                int limit = solutionsLimit;
+                if (solutionsLimit != Integer.MAX_VALUE) {
+                    if (nSolutions[0] >= solutionsLimit) {
+                        limit = 1;
+                    } else if (nSolutions[0] > 1) {
+                        limit = (int) Math.ceil((double) solutionsLimit / nSolutions[0]);
+                    }
+                }
                 if (B.getToFix()) {
-                    get = processOrBranch(new Branch(B.getVariables()), statistics, parentId, position, solutionLimit);
+                    newST = processOrBranch(new Branch(B.getVariables()), statistics, nodeId, position, limit);
                     if (this.complete) statistics.setCompleted();
                 } else {
-                    get = dfs(statistics, nodeId, p, solutionLimit);
+                    newST = dfs(statistics, nodeId, p, limit);
                 }
-                if (!get.isEmpty()) {
-                    subSolutions.add(get);
+                if (newST!= null && !newST.slicedTables.isEmpty()) {
+                    subSolutions.add(newST.slicedTables);
+                    nSolutions[0] *= newST.nSolutions;
                 } else {
                     breaking.set(true);
                 }
@@ -270,10 +279,10 @@ public class AND_DFSearch {
             }
             pos += 1;
         }
-        return new SlicedTable(getPattern(), subSolutions);
+        return new Solutions(nSolutions[0], new ArrayList<SlicedTable>(List.of(new SlicedTable(getPattern(), subSolutions))));
     }
 
-    private List<SlicedTable> processOrBranch(Branch branch, SearchStatistics statistics, int parentId, int position, int solutionLimit){
+    private Solutions processOrBranch(Branch branch, SearchStatistics statistics, int parentId, int position, int solutionsLimit){
         final int nodeId = currNodeId++;
         Procedure[] branches = new Procedure[0];
         if (branch.getVariables() != null){
@@ -281,27 +290,29 @@ public class AND_DFSearch {
             notifyBranch(parentId,nodeId, position, branch.getVariables().size());
         }
         int pos = 0;
-        List<SlicedTable> solutions = new ArrayList<>();
+        List<SlicedTable> sols = new ArrayList<>();
         if (branches.length == 0) {
             // SOLUTION
-            if (cp.getGraphWithStart().solutionFound()){ // todo check with need newstate
-                solutions.add(new SlicedTable(getPattern()));
-                return solutions;
-            } else if (branch.getBranches() == null || branch.getBranches().isEmpty()){
-                List<SlicedTable> end = dfs(statistics, nodeId, pos, solutionLimit);
-                if (end.isEmpty()) {
-                    return solutions;
+            if (cp.getGraphWithStart().solutionFound()){
+                sols.add(new SlicedTable(getPattern()));
+                return new Solutions(1, sols);
+            } else if (branch.getBranches() == null){
+                Solutions newST = dfs(statistics, nodeId, pos, solutionsLimit);
+                if (!newST.slicedTables.isEmpty()) {
+                    return newST;
                 }
-                return end;
             } else {
                 final int p = pos;
-                SlicedTable end = processAndBranch(new Branch(branch.getBranches()), statistics, nodeId, p, solutionLimit);
-                if (end != null) solutions.add(end);
-                return solutions;
+                Solutions newST = processAndBranch(new Branch(branch.getBranches()), statistics, nodeId, p, solutionsLimit);
+                if (newST != null) {
+                    return newST;
+                }
             }
+            return null;
         } else {
+            final int[] nSolutions = {0};
             for (Procedure b : branches) {
-                if (solutions.size() >= solutionLimit) {
+                if (sols.size() >= solutionsLimit) {
                     this.complete = false;
                     break;
                 }
@@ -310,8 +321,15 @@ public class AND_DFSearch {
                     try {
                         statistics.incrNodes();
                         b.call();
-                        List<SlicedTable> get = processOrBranch(branch,statistics, nodeId, p, solutionLimit);
-                        solutions.addAll(get);
+                        int limite = solutionsLimit;
+                        if (solutionsLimit != Integer.MAX_VALUE) {
+                            limite = solutionsLimit-nSolutions[0];
+                        }
+                        Solutions newST = processOrBranch(branch,statistics, nodeId, p, limite);
+                        if (newST != null) {
+                            sols.addAll(newST.slicedTables);
+                            nSolutions[0] += newST.nSolutions;
+                        }
                     } catch (InconsistencyException e) {
                         currNodeId++;
                         statistics.incrFailures();
@@ -320,7 +338,7 @@ public class AND_DFSearch {
                 });
                 pos += 1;
             }
-            return solutions;
+            return new Solutions(nSolutions[0], sols);
         }
     }
 }

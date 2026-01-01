@@ -42,8 +42,8 @@ public class AND_MapColoring {
         } catch (RuntimeException e) {}
 
 
-        AND_DFSearch_partial_solution search = Factory.makeAND_Dfs_PS(cp, fiducciaMattheyses(cp,5, true), firstFail());
-        //AND_DFSearch search = Factory.makeAND_Dfs(cp, fiducciaMattheyses(cp,5), firstFail());
+        //AND_DFSearch_partial_solution search = Factory.makeAND_Dfs_PS(cp, fiducciaMattheyses(cp,5, true), firstFail());
+        AND_DFSearch search = Factory.makeAND_Dfs(cp, fiducciaMattheyses(cp,5), firstFail());
         //AND_DFSearch search = Factory.makeAND_Dfs(cp, greedyPartitioning(cp,15),firstFail());
         search.onSolution(() -> {
             for (int k = 0; k < countriesVars.length; k++) {
@@ -57,7 +57,7 @@ public class AND_MapColoring {
         // https://paintmaps.com/map-charts/293/World-map-chart
         long debut = System.nanoTime();
         System.out.println("start");
-        SearchStatistics stats = search.solve(100000000, false);
+        SearchStatistics stats = search.solve(20, false);
         //SearchStatistics stats = search.solve(2);
         long fin = System.nanoTime();
 

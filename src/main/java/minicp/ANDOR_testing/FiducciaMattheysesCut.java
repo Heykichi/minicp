@@ -71,7 +71,8 @@ public class FiducciaMattheysesCut {
         Set<IntVar> cutNodes = new HashSet<>();
         for (IntVar node : nodes) {
             for (IntVar neighbor : graph.getUnfixedNeighbors(node)) {
-                if ((partB.contains(node) && partA.contains(neighbor))) {
+                if ((partA.contains(node) && partB.contains(neighbor)) ||
+                        (partB.contains(node) && partA.contains(neighbor))) {
                     cutNodes.add(node);
                     break;
                 }

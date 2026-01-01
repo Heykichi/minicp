@@ -17,7 +17,7 @@ public class AND_example1_1 {
         IntVar[] X = Factory.makeIntVarArray(cp, index, domain);
         IntVar[] Z = Factory.makeIntVarArray(cp, index, domain);
         IntVar Y = Factory.makeIntVar(cp, domain);
-
+        System.out.println(Y);
         cp.post(Factory.sum(X, Y));
         cp.post(Factory.sum(Z, Y));
 
@@ -32,7 +32,7 @@ public class AND_example1_1 {
         });
 
         long debut = System.nanoTime();
-        SearchStatistics stats = search.solve(2000000,true);
+        SearchStatistics stats = search.solve(true);
         long fin = System.nanoTime();
         System.out.println("=======================================================================");
         System.out.format("Execution time : %s ms\n", (fin - debut) / 1_000_000);
