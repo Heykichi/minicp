@@ -15,12 +15,12 @@ public class OR_Base_Problem {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeSolver(false);
-        
-        int index = 3;
-        IntVar[] X = Factory.makeIntVarArray(cp, index, 5);
-        IntVar[] Z = Factory.makeIntVarArray(cp, index, 5);
 
-        IntVar Y = Factory.makeIntVar(cp,6);
+        int index = 4;
+        int domain = 4;
+        IntVar[] X = Factory.makeIntVarArray(cp, index, domain);
+        IntVar[] Z = Factory.makeIntVarArray(cp, index, domain);
+        IntVar Y = Factory.makeIntVar(cp, domain);
         //Y.fix(3);
 
         cp.post(Factory.sum(X, Y));
@@ -29,6 +29,12 @@ public class OR_Base_Problem {
         DFSearch search = Factory.makeDfs(cp, () -> {
             int idx = -1; // index of the first variable that is not fixed
             boolean axe = true;
+            if (!Y.isFixed()){
+                int v = Y.min();
+                Procedure left = () -> cp.post(Factory.equal(Y, v));
+                Procedure right = () -> cp.post(Factory.notEqual(Y, v));
+                return new Procedure[]{left, right};
+            }
             for (int k = 0; k < X.length; k++)
                 if (X[k].size() > 1) {
                     idx = k;
@@ -53,7 +59,9 @@ public class OR_Base_Problem {
         });
 
         search.onSolution(() -> {
-            java.lang.System.out.println(Arrays.toString(X)+ " = " + Arrays.toString(Z) + "=> "+ Y);
+            printSum(X,Y);
+            printSum(Z,Y);
+            System.out.println();
         });
 
         long debut = System.nanoTime();

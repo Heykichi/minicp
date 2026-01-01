@@ -167,7 +167,7 @@ public class AND_DFSearch {
                                 }
                             }
                             notifySolution();
-                            System.out.println();
+                            //System.out.println();
                         });
                         n_solutions++;
                         if (n_solutions >= solutionsLimit) {
@@ -175,8 +175,8 @@ public class AND_DFSearch {
                         }
                     }
                 } else {
-                    int nSolution = computeSolution(solutions, solutionsLimit);
-                    statistics.incrSolutions(nSolution);
+                    int nSolutions = computeSolution(solutions, solutionsLimit);
+                    if (nSolutions >= 0 ) statistics.incrSolutions(nSolutions);
                 }
 
                 if (this.complete) statistics.setCompleted();

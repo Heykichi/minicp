@@ -47,12 +47,12 @@ public class MapColoring_France {
         DFSearch search = Factory.makeDfs(cp, firstFail(vars));
 
         search.onSolution(() -> {
-            for (int k = 0; k < vars.length; k++) {
-                int n = vars[k].min()+1;
-                if (vars[k].isFixed()){
-                    System.out.println(names.get(index.get(k))+ " " + n);
-                }
-            }
+//            for (int k = 0; k < vars.length; k++) {
+//                int n = vars[k].min()+1;
+//                if (vars[k].isFixed()){
+//                    System.out.println(names.get(index.get(k))+ " " + n);
+//                }
+//            }
         });
         // https://paintmaps.com/map-charts/76/France-Detailed-map-chart
         long debut = System.nanoTime();

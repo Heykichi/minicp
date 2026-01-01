@@ -32,7 +32,7 @@ public class AND_PS_example2 {
         // the branching must return a branch.
         // In the case of AND branches, variables assigned to subbranches must be removed (graph.removeNode(Intvar v) or graph.removeNode(Intvar[] v)).
         //
-        AND_DFSearch_partial_solution search = Factory.makeAND_Dfs_PS(cp, naiveTreeBuilding(cp,1,5));
+        AND_DFSearch_partial_solution search = Factory.makeAND_Dfs_PS(cp, naiveTreeBuilding(cp,1,5),firstFail());
 
         search.setBranching(firstFail());
 
@@ -43,7 +43,7 @@ public class AND_PS_example2 {
         });
 
 
-        SearchStatistics stats = search.solve(2000);
+        SearchStatistics stats = search.solve(false);
         System.out.println("=======================================================================");
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);

@@ -121,7 +121,7 @@ public class AND_DFSearch_partial_solution {
         sm.withNewState(() -> {
             try {
                 int nSolutions = dfs(statistics, -1, -1, 0, solutionLimit);
-                statistics.incrSolutions(nSolutions);
+                if (nSolutions >= 0 ) statistics.incrSolutions(nSolutions);
                 if (this.complete) statistics.setCompleted();
             } catch (StopSearchException ignored) {
             } catch (StackOverflowError e) {
@@ -166,7 +166,7 @@ public class AND_DFSearch_partial_solution {
             //System.out.println("OR");
             n_Solutions = processOrBranch(branch, statistics, parentId, position, andLevel, solutionLimit);
         } else if (branch.getBranches() != null && !branch.getBranches().isEmpty()){
-            System.out.println("AND");
+            //System.out.println("AND");
             n_Solutions = processAndBranch(branch, statistics, parentId, position, andLevel, solutionLimit);
         } else {
             throw new IllegalArgumentException("No branch available");
@@ -189,9 +189,14 @@ public class AND_DFSearch_partial_solution {
             sm.withNewState(() -> {
                 this.cp.getGraphWithStart().newState(B.getVariables());
                 int solution = 1;
-                int limit = (solutionLimit/nSolutions[0]) + 1;
-                if (nSolutions[0] >= solutionLimit){
-                    limit = 1;
+                int limit = solutionLimit;
+                if (solutionLimit != Integer.MAX_VALUE) {
+                    if (nSolutions[0] >= solutionLimit) {
+                        limit = 1;
+
+                    } else if (nSolutions[0] > 1) {
+                        limit = (int) Math.ceil((double) solutionLimit / nSolutions[0]);
+                    }
                 }
                 if (B.getToFix()) {
                     solution = processOrBranch(new Branch(B.getVariables()), statistics, parentId, position, andLevel+1, limit);
@@ -240,7 +245,11 @@ public class AND_DFSearch_partial_solution {
                     try {
                         statistics.incrNodes();
                         b.call();
-                        nSolutions[0] += processOrBranch(branch,statistics, nodeId, p, andLevel, solutionLimit-nSolutions[0]);
+                        int limite = solutionLimit;
+                        if (solutionLimit != Integer.MAX_VALUE) {
+                            limite = solutionLimit-nSolutions[0];
+                        }
+                        nSolutions[0] += processOrBranch(branch,statistics, nodeId, p, andLevel, limite);
 
                     } catch (InconsistencyException e) {
                         currNodeId++;

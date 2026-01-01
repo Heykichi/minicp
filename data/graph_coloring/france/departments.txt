@@ -7,7 +7,7 @@ Ardèche 7
 Ardennes 8
 Ariège 9
 Aube 10
-Aude 11 
+Aude 11
 Aveyron 12
 Bas-Rhin 67
 Bouches-du-Rhône 13
@@ -16,7 +16,7 @@ Cantal 15
 Charente 16
 Charente-Maritime 17
 Cher 18
-Corrèze 19 
+Corrèze 19
 Corse-du-Sud 2A
 Côte-d'Or 21
 Côtes-d'Armor 22
@@ -46,7 +46,7 @@ Hautes-Alpes 5
 Hautes-Pyrénées 65
 Hauts-de-Seine 92
 Hérault 34
-Ille-et-Vilaine 35 
+Ille-et-Vilaine 35
 Indre 36
 Indre-et-Loire 37
 Isère 38
@@ -78,7 +78,7 @@ Paris 75
 Pas-de-Calais 62
 Puy-de-Dôme 63
 Pyrénées-Atlantiques 64
-Pyrénées-Orientales 66 
+Pyrénées-Orientales 66
 Rhône 69
 Saône-et-Loire 71
 Sarthe 72
