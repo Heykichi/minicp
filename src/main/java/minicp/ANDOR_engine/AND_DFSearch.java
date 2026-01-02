@@ -126,6 +126,7 @@ public class AND_DFSearch {
             try {
                 long debut1 = System.nanoTime();
                 Solutions solutions = dfs(statistics, -1, -1, solutionsLimit);
+                if (solutions.nSolutions >= 0) statistics.incrSolutions(solutions.nSolutions);
                 long fin1 = System.nanoTime();
                 List<SlicedTable> slicedTables = solutions.slicedTables;
                 long debut2 = System.nanoTime();
@@ -151,7 +152,6 @@ public class AND_DFSearch {
     private void processSolutions(SearchStatistics statistics, Solutions solutions, List<SlicedTable> slicedTables, int solutionsLimit) {
         List<Map<Integer, Integer>> listSolutions = computeSlicedTable(slicedTables, solutionsLimit);
         statistics.setSolutions(listSolutions);
-        if (solutions.nSolutions >= 0) statistics.incrSolutions(solutions.nSolutions);
         if (showSolutions){
             Set<IntVar> vars = this.cp.getGraphWithStart().getStateVariables();
             int n_solutions = 0;
