@@ -18,7 +18,7 @@ public class separatorTest {
     /* ===== tiny sanity demo ===== */
     public static void main(String[] args) {
 
-        InputReader reader1 = new InputReader("data/graph_coloring/world/countries.txt");
+        InputReader reader1 = new InputReader("data/graph_coloring/world/names.txt");
 
         Map<Integer, String> countriesNames = new HashMap<>();
         try {
@@ -32,7 +32,7 @@ public class separatorTest {
         Solver cp = Factory.makeANDSolver(false);
         IntVar[] countriesVars = Factory.makeIntVarArray(cp, countriesNames.size(), 4);
 
-        InputReader reader2 = new InputReader("data/graph_coloring/world/countries_neighbor.txt");
+        InputReader reader2 = new InputReader("data/graph_coloring/world/neighbors.txt");
 
         try {
             while (true) {

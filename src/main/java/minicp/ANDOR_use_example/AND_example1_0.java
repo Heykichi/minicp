@@ -1,6 +1,6 @@
 package minicp.ANDOR_use_example;
 
-import minicp.ANDOR_engine.AND_DFSearch;
+import minicp.ANDOR_engine.DFSearch_And_CS;
 import minicp.ANDOR_engine.Branch;
 import minicp.ANDOR_engine.SubBranch;
 import minicp.cp.Factory;
@@ -42,7 +42,7 @@ public class AND_example1_0 {
 
         Branch B = new Branch(combined);
 
-        AND_DFSearch search = Factory.makeAND_Dfs(cp, () -> {
+        DFSearch_And_CS search = Factory.makeAND_Dfs(cp, () -> {
             if (!Y.isFixed()) {
                 return B;
             }

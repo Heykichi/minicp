@@ -1,6 +1,6 @@
 package minicp.ANDOR_use_example_PS;
 
-import minicp.ANDOR_engine.AND_DFSearch_partial_solution;
+import minicp.ANDOR_engine.DFSearch_And_PS;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
@@ -32,7 +32,7 @@ public class AND_PS_example1_1 {
         // the branching must return a branch.
         // In the case of AND branches, variables assigned to subbranches must be removed (graph.removeNode(Intvar v) or graph.removeNode(Intvar[] v)).
         //
-        AND_DFSearch_partial_solution search = Factory.makeAND_Dfs_PS(cp, naiveTreeBuilding(cp, 1,5));
+        DFSearch_And_PS search = Factory.makeAND_Dfs_PS(cp, naiveTreeBuilding(cp, 1,5));
 
         search.setBranching(firstFail());
 

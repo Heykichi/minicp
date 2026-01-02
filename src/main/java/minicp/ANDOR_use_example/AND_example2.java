@@ -1,6 +1,6 @@
 package minicp.ANDOR_use_example;
 
-import minicp.ANDOR_engine.AND_DFSearch;
+import minicp.ANDOR_engine.DFSearch_And_CS;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
@@ -24,7 +24,7 @@ public class AND_example2 {
         cp.post(Factory.equal(X[0], Z[0]));
 
         
-        AND_DFSearch search = Factory.makeAND_Dfs(cp, naiveTreeBuilding(cp,1,5));
+        DFSearch_And_CS search = Factory.makeAND_Dfs(cp, naiveTreeBuilding(cp,1,5));
 
         search.setBranching(firstFail());
 

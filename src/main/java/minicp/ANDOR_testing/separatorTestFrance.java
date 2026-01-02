@@ -16,7 +16,7 @@ public class separatorTestFrance {
     /* ===== tiny sanity demo ===== */
     public static void main(String[] args) {
 
-        InputReader reader1 = new InputReader("data/graph_coloring/france/departments.txt");
+        InputReader reader1 = new InputReader("data/graph_coloring/france/names.txt");
 
         Map<String, String> names = new HashMap<>();
         try {

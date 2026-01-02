@@ -16,8 +16,8 @@
 package minicp.cp;
 
 import static minicp.ANDOR_engine.AND_Scheme.*;
-import minicp.ANDOR_engine.AND_DFSearch;
-import minicp.ANDOR_engine.AND_DFSearch_partial_solution;
+import minicp.ANDOR_engine.DFSearch_And_CS;
+import minicp.ANDOR_engine.DFSearch_And_PS;
 import minicp.ANDOR_engine.AND_MiniCP;
 import minicp.ANDOR_engine.Branch;
 import minicp.engine.constraints.*;
@@ -224,19 +224,19 @@ public final class Factory {
         return new DFSearch(cp.getStateManager(), branching);
     }
 
-    public static AND_DFSearch_partial_solution makeAND_Dfs_PS(Solver cp, Supplier<Branch> treeBuilding) {
-        return new AND_DFSearch_partial_solution(cp, treeBuilding, firstOrder());
+    public static DFSearch_And_PS makeAND_Dfs_PS(Solver cp, Supplier<Branch> treeBuilding) {
+        return new DFSearch_And_PS(cp, treeBuilding, firstOrder());
     }
-    public static AND_DFSearch_partial_solution makeAND_Dfs_PS(Solver cp, Supplier<Branch> treeBuilding, Function<Set<IntVar>, Procedure[]> branching) {
-        return new AND_DFSearch_partial_solution(cp, treeBuilding, branching);
-    }
-
-    public static AND_DFSearch makeAND_Dfs(Solver cp, Supplier<Branch> treeBuilding) {
-        return new AND_DFSearch(cp, treeBuilding, firstOrder());
+    public static DFSearch_And_PS makeAND_Dfs_PS(Solver cp, Supplier<Branch> treeBuilding, Function<Set<IntVar>, Procedure[]> branching) {
+        return new DFSearch_And_PS(cp, treeBuilding, branching);
     }
 
-    public static AND_DFSearch makeAND_Dfs(Solver cp, Supplier<Branch> treeBuilding, Function<Set<IntVar>, Procedure[]> branching) {
-        return new AND_DFSearch(cp, treeBuilding, branching);
+    public static DFSearch_And_CS makeAND_Dfs(Solver cp, Supplier<Branch> treeBuilding) {
+        return new DFSearch_And_CS(cp, treeBuilding, firstOrder());
+    }
+
+    public static DFSearch_And_CS makeAND_Dfs(Solver cp, Supplier<Branch> treeBuilding, Function<Set<IntVar>, Procedure[]> branching) {
+        return new DFSearch_And_CS(cp, treeBuilding, branching);
     }
 
     // -------------- constraints -----------------------

@@ -1,6 +1,6 @@
 package minicp.ANDOR_use_example_PS;
 
-import minicp.ANDOR_engine.AND_DFSearch_partial_solution;
+import minicp.ANDOR_engine.DFSearch_And_PS;
 import minicp.ANDOR_engine.Branch;
 import minicp.ANDOR_engine.SubBranch;
 import minicp.cp.Factory;
@@ -42,7 +42,7 @@ public class AND_PS_example1_0 {
 
         Branch B = new Branch(combined);
 
-        AND_DFSearch_partial_solution search = Factory.makeAND_Dfs_PS(cp, () -> {
+        DFSearch_And_PS search = Factory.makeAND_Dfs_PS(cp, () -> {
             if (!Y.isFixed()) {
                 return B;
             }
