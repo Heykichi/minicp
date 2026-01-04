@@ -15,7 +15,7 @@
 
 package minicp.engine.core;
 
-import minicp.ANDOR_engine.ConstraintGraph;
+import minicp.ANDOR.ConstraintGraph;
 import minicp.search.Objective;
 import minicp.state.StateManager;
 import minicp.util.Procedure;

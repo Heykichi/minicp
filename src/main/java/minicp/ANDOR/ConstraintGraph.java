@@ -1,4 +1,4 @@
-package minicp.ANDOR_engine;
+package minicp.ANDOR;
 
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;

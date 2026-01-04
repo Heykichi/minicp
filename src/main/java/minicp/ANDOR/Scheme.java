@@ -13,9 +13,8 @@
  * Copyright (c)  2018. by Laurent Michel, Pierre Schaus, Pascal Van Hentenryck
  */
 
-package minicp.ANDOR_engine;
+package minicp.ANDOR;
 
-import minicp.ANDOR_testing.BalancedVertexSeparatorCut;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
@@ -29,12 +28,11 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static minicp.ANDOR_testing.GreedyPartitioning.findBalancedSeparator;
-import static minicp.ANDOR_testing.FiducciaMattheysesCut.fiducciaMattheysesCut;
+import static minicp.ANDOR.FiducciaMattheysesCut.fiducciaMattheysesCut;
 import static minicp.cp.Factory.equal;
 import static minicp.cp.Factory.notEqual;
 
-public class AND_Scheme {
+public class Scheme {
 
     public static <T, N extends Comparable<N>> T selectMin(T[] x, Predicate<T> p, Function<T, N> f) {
         T sel = null;
@@ -131,44 +129,6 @@ public class AND_Scheme {
         };
     }
 
-
-
-    public static Supplier<Branch> greedyPartitioning(Solver cp, int sizeToFix){
-        boolean[] firstCall = {true};
-        return () -> {
-            if (firstCall[0]) {
-                firstCall[0] = false;
-                ConstraintGraph graph = cp.getGraphWithStart();
-                List<SubBranch> b = graph.splitGraph(sizeToFix);
-                if (b != null) return new Branch(b);
-            }
-            ConstraintGraph graph = cp.getGraphWithStart();
-            Set<IntVar> unFixedVars = graph.getUnfixedVariables();
-            if (unFixedVars.isEmpty()) {
-                return null;
-            }
-            if (unFixedVars.size() <= sizeToFix) {
-                return new Branch(unFixedVars);
-            }
-            Set<IntVar>[] end = findBalancedSeparator(graph);
-            SubBranch[] s = {new SubBranch(end[1]), new SubBranch(end[2])};
-
-            List<SubBranch> subBranches = new ArrayList<>();
-            if (!end[1].isEmpty()){
-                subBranches.add(new SubBranch(end[1]));
-            }
-            if (!end[2].isEmpty()){
-                subBranches.add(new SubBranch(end[2]));
-            }
-            if (subBranches.size() == 2){
-                return new Branch(end[0], subBranches);
-            }
-
-            return new Branch(end[0]);
-
-        };
-    }
-
     public static Supplier<Branch> fiducciaMattheyses(Solver cp, int sizeToFix) {
         return fiducciaMattheyses(cp, sizeToFix, false);
     }
@@ -192,10 +152,9 @@ public class AND_Scheme {
             }
 
             Set<IntVar> cut = fiducciaMattheysesCut(graph);
-
+            if (cut.isEmpty()) System.out.println("why ? ");
             graph.removeNode(cut);
             List<Set<IntVar>> subSet = graph.findConnectedComponents();
-
             if (subSet.size() > 1) {
                 List<SubBranch> subBranches = new ArrayList<>();
                 for (Set<IntVar> s1 : subSet) {

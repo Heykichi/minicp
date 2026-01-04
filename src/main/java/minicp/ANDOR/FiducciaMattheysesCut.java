@@ -1,6 +1,5 @@
-package minicp.ANDOR_testing;
+package minicp.ANDOR;
 
-import minicp.ANDOR_engine.ConstraintGraph;
 import minicp.engine.core.IntVar;
 
 import java.util.*;
@@ -78,6 +77,7 @@ public class FiducciaMattheysesCut {
                 }
             }
         }
+        if (cutNodes.isEmpty()) return nodes;
         return cutNodes;
     }
 
@@ -93,17 +93,11 @@ public class FiducciaMattheysesCut {
         }
     }
 
-    private static IntVar argMaxByValue(Map<IntVar, Integer> map) {
-        IntVar bestKey = null;
-        int bestValue = Integer.MIN_VALUE;
-
-        for (Map.Entry<IntVar, Integer> e : map.entrySet()) {
-            int value = e.getValue();
-            if (value > bestValue) {
-                bestValue = value;
-                bestKey = e.getKey();
-            }
-        }
-        return bestKey;
+    private static IntVar argMaxByValue(Map<IntVar, Integer> scores) {
+        return scores.entrySet().stream()
+                .max(Comparator.<Map.Entry<IntVar,Integer>>comparingInt(Map.Entry::getValue)
+                        .thenComparingInt(e -> -e.getKey().getId())) // ou +getId() selon tie-break
+                .map(Map.Entry::getKey)
+                .orElse(null);
     }
 }

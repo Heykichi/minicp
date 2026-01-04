@@ -1,14 +1,17 @@
-package minicp.ANDOR_use_example;
+package minicp.ANDOR.examples.equation;
 
-import minicp.ANDOR_engine.DFSearch_And_CS;
+import minicp.ANDOR.DFSearch_And_PS;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.search.SearchStatistics;
-import static minicp.ANDOR_engine.AND_Scheme.*;
+
+import static minicp.ANDOR.Scheme.firstFail;
+import static minicp.ANDOR.Scheme.naiveTreeBuilding;
+import static minicp.ANDOR.examples.equation.Equation_And_CS.printSum;
 
 
-public class AND_example1_1 {
+public class Equation_And_PS {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeANDSolver(false);
@@ -17,11 +20,11 @@ public class AND_example1_1 {
         IntVar[] X = Factory.makeIntVarArray(cp, index, domain);
         IntVar[] Z = Factory.makeIntVarArray(cp, index, domain);
         IntVar Y = Factory.makeIntVar(cp, domain);
-        System.out.println(Y);
+
         cp.post(Factory.sum(X, Y));
         cp.post(Factory.sum(Z, Y));
 
-        DFSearch_And_CS search = Factory.makeAND_Dfs(cp, naiveTreeBuilding(cp,1,2),firstFail());
+        DFSearch_And_PS search = Factory.makeAND_Dfs_PS(cp, naiveTreeBuilding(cp,1,4),firstFail());
 
         search.setBranching(firstFail());
 
@@ -32,21 +35,12 @@ public class AND_example1_1 {
         });
 
         long debut = System.nanoTime();
-        SearchStatistics stats = search.solve(true);
+        SearchStatistics stats = search.solve(100,true);
         long fin = System.nanoTime();
         System.out.println("=======================================================================");
         System.out.format("Execution time : %s ms\n", (fin - debut) / 1_000_000);
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);
 
-    }
-
-    public static void printSum(IntVar[] vars, IntVar sum){
-        StringBuilder expression = new StringBuilder();
-        for (int i = 0; i < vars.length -1; i += 1) {
-            expression.append(vars[i]).append(" + ");
-        }
-        expression.append(vars[vars.length-1]);
-        System.out.println(expression.toString() + " = " + sum);
     }
 }

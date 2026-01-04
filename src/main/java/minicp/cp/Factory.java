@@ -15,11 +15,11 @@
 
 package minicp.cp;
 
-import static minicp.ANDOR_engine.AND_Scheme.*;
-import minicp.ANDOR_engine.DFSearch_And_CS;
-import minicp.ANDOR_engine.DFSearch_And_PS;
-import minicp.ANDOR_engine.AND_MiniCP;
-import minicp.ANDOR_engine.Branch;
+import static minicp.ANDOR.Scheme.*;
+import minicp.ANDOR.DFSearch_And_CS;
+import minicp.ANDOR.DFSearch_And_PS;
+import minicp.ANDOR.MiniCP_And;
+import minicp.ANDOR.Branch;
 import minicp.engine.constraints.*;
 import minicp.engine.core.*;
 import minicp.search.DFSearch;
@@ -88,7 +88,7 @@ public final class Factory {
      * @return a constraint programming solver with trail-based memory management
      */
     public static Solver makeANDSolver() {
-        return new AND_MiniCP(new Trailer());
+        return new MiniCP_And(new Trailer());
     }
     /**
      * Creates a constraint programming solver with a constraint graph
@@ -98,7 +98,7 @@ public final class Factory {
      * @return a constraint programming solver
      */
     public static Solver makeANDSolver(boolean byCopy) {
-        return new AND_MiniCP(byCopy ? new Copier() : new Trailer());
+        return new MiniCP_And(byCopy ? new Copier() : new Trailer());
     }
 
     /**
@@ -231,11 +231,11 @@ public final class Factory {
         return new DFSearch_And_PS(cp, treeBuilding, branching);
     }
 
-    public static DFSearch_And_CS makeAND_Dfs(Solver cp, Supplier<Branch> treeBuilding) {
+    public static DFSearch_And_CS makeAND_Dfs_CS(Solver cp, Supplier<Branch> treeBuilding) {
         return new DFSearch_And_CS(cp, treeBuilding, firstOrder());
     }
 
-    public static DFSearch_And_CS makeAND_Dfs(Solver cp, Supplier<Branch> treeBuilding, Function<Set<IntVar>, Procedure[]> branching) {
+    public static DFSearch_And_CS makeAND_Dfs_CS(Solver cp, Supplier<Branch> treeBuilding, Function<Set<IntVar>, Procedure[]> branching) {
         return new DFSearch_And_CS(cp, treeBuilding, branching);
     }
 

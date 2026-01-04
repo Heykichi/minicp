@@ -15,7 +15,7 @@
 
 package minicp.search;
 
-import minicp.ANDOR_engine.SlicedTable;
+import minicp.ANDOR.SlicedTable;
 
 import java.util.List;
 import java.util.Map;

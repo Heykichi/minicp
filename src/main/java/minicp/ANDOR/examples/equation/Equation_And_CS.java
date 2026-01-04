@@ -1,21 +1,19 @@
-package minicp.ANDOR_use_example_PS;
+package minicp.ANDOR.examples.equation;
 
-import minicp.ANDOR_engine.DFSearch_And_PS;
+import minicp.ANDOR.DFSearch_And_CS;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.search.SearchStatistics;
-
-import static minicp.ANDOR_engine.AND_Scheme.naiveTreeBuilding;
-import static minicp.ANDOR_engine.AND_Scheme.firstFail;
+import static minicp.ANDOR.Scheme.*;
 
 
-public class AND_PS_example1_1 {
+public class Equation_And_CS {
     public static void main(String[] args) {
 
         Solver cp = Factory.makeANDSolver(false);
-        int index = 2;
-        int domain = 2;
+        int index = 4;
+        int domain = 4;
         IntVar[] X = Factory.makeIntVarArray(cp, index, domain);
         IntVar[] Z = Factory.makeIntVarArray(cp, index, domain);
         IntVar Y = Factory.makeIntVar(cp, domain);
@@ -23,16 +21,7 @@ public class AND_PS_example1_1 {
         cp.post(Factory.sum(X, Y));
         cp.post(Factory.sum(Z, Y));
 
-        //System.out.println(cp.getGraph().toString());
-
-        // Branch(IntVar[] variables, Branch[] branches, boolean rebranching)
-        // we fix variables, then branches. If rebranching == true, we call rebranching (in series for an OR branch or in parallel for an AND branch)
-        // only one rebranching is possible to avoid searching for a node multiple times
-
-        // the branching must return a branch.
-        // In the case of AND branches, variables assigned to subbranches must be removed (graph.removeNode(Intvar v) or graph.removeNode(Intvar[] v)).
-        //
-        DFSearch_And_PS search = Factory.makeAND_Dfs_PS(cp, naiveTreeBuilding(cp, 1,5));
+        DFSearch_And_CS search = Factory.makeAND_Dfs_CS(cp, naiveTreeBuilding(cp,1,4),firstFail());
 
         search.setBranching(firstFail());
 
@@ -43,13 +32,13 @@ public class AND_PS_example1_1 {
         });
 
         long debut = System.nanoTime();
-        SearchStatistics stats = search.solve(2000000, false);
+        SearchStatistics stats = search.solve(100,true);
         long fin = System.nanoTime();
-
         System.out.println("=======================================================================");
         System.out.format("Execution time : %s ms\n", (fin - debut) / 1_000_000);
         System.out.format("#Solutions: %s\n", stats.numberOfSolutions());
         System.out.format("Statistics: %s\n", stats);
+
     }
 
     public static void printSum(IntVar[] vars, IntVar sum){

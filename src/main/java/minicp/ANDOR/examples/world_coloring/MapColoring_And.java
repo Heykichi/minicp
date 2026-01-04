@@ -1,20 +1,20 @@
-package minicp.ANDOR_example;
+package minicp.ANDOR.examples.world_coloring;
 
+import minicp.ANDOR.DFSearch_And_PS;
 import minicp.cp.Factory;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
-import minicp.search.DFSearch;
 import minicp.search.SearchStatistics;
 import minicp.util.io.InputReader;
 
 import java.util.*;
 
-import static minicp.cp.BranchingScheme.firstFail;
+import static minicp.ANDOR.Scheme.*;
 
-public class MapColoring {
+public class MapColoring_And {
     public static void main(String[] args) {
 
-        String path = "data/graph_coloring/france";
+        String path = "data/graph_coloring/world";
 
         InputReader reader1 = new InputReader(path+"/names.txt");
         InputReader reader2 = new InputReader(path+"/neighbors.txt");
@@ -45,7 +45,8 @@ public class MapColoring {
             }
         } catch (RuntimeException e) {}
 
-        DFSearch search = Factory.makeDfs(cp, firstFail(vars));
+        //AND_DFSearch_partial_solution search = Factory.makeAND_Dfs_PS(cp, fiducciaMattheyses(cp,5, true), firstFail());
+        DFSearch_And_PS search = Factory.makeAND_Dfs_PS(cp, fiducciaMattheyses(cp,5,true), firstFail());
 
         search.onSolution(() -> {
             for (int k = 0; k < vars.length; k++) {
@@ -60,11 +61,10 @@ public class MapColoring {
         // https://paintmaps.com/map-charts/293/World-map-chart
         // https://paintmaps.com/map-charts/76/France-Detailed-map-chart
         long debut = System.nanoTime();
-        SearchStatistics stats = search.solve(statistics -> statistics.numberOfSolutions() == 1);
+        SearchStatistics stats = search.solve(100000, false);
         long fin = System.nanoTime();
 
         System.out.format("\nExecution time : %s ms\n", (fin - debut) / 1_000_000);
         System.out.format("Statistics: %s\n", stats);
-
     }
 }

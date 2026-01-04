@@ -13,7 +13,7 @@
  * Copyright (c)  2018. by Laurent Michel, Pierre Schaus, Pascal Van Hentenryck
  */
 
-package minicp.ANDOR_engine;
+package minicp.ANDOR;
 
 import minicp.cp.Factory;
 import minicp.engine.core.*;
@@ -25,7 +25,7 @@ import minicp.util.exception.InconsistencyException;
 import java.util.*;
 
 
-public class AND_MiniCP implements Solver {
+public class MiniCP_And implements Solver {
 
     private Queue<Constraint> propagationQueue = new ArrayDeque<>();
     private List<Procedure> fixPointListeners = new LinkedList<>();
@@ -35,7 +35,7 @@ public class AND_MiniCP implements Solver {
     private int id = -1;
 
 
-    public AND_MiniCP(StateManager sm) {
+    public MiniCP_And(StateManager sm) {
         this.sm = sm;
         this.graph = new ConstraintGraph(this);
     }

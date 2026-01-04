@@ -1,4 +1,4 @@
-package minicp.ANDOR_engine;
+package minicp.ANDOR;
 
 import java.util.ArrayList;
 import java.util.HashMap;
