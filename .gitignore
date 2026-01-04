@@ -1,0 +1,11 @@
+# IntelliJ / JetBrains
+.idea/
+*.iml
+
+# Build / compilation
+target/
+out/
+build/
+
+# Autres dossiers temporaires
+.ai/
